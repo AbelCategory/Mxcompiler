@@ -16,4 +16,6 @@ public class memberVarNode extends exprNode {
     public void accept(ASTVistor vis) {
         vis.visit(this);
     }
+
+    @Override public boolean isAssign() {return  true;}
 }

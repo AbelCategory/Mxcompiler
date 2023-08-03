@@ -21,7 +21,7 @@ public class SemanticCheck implements ASTVistor {
 
     @Override public void visit(funcNode cur) {
         currentScope = new Scope(currentScope);
-        cur.pa.forEach(v -> currentScope.newVariable(v.name, v.type, v.p));
+        cur.pa.forEach(v -> currentScope.newVariable(v.name, gScope.getType(v.type, v.p), v.p));
         cur.body.accept(this);
         currentScope = currentScope.getParentScope();
     }
@@ -46,23 +46,50 @@ public class SemanticCheck implements ASTVistor {
     }
 
     @Override public void visit(BlockStatNode cur) {
-
+        currentScope = new Scope(currentScope);
+        cur.stats.forEach(st -> st.accept(this));
+        currentScope = currentScope.getParentScope();
     }
 
     @Override public void visit(IfStatNode cur) {
-
+        cur.cond.accept(this);
+        cur.thenStat.accept(this);
+        if(cur.elseStat != null){
+            cur.elseStat.accept(this);
+        }
     }
 
     @Override public void visit(ForDefStatNode cur) {
-
+        currentScope = new Scope(currentScope);
+        if(cur.init != null) {
+            cur.init.accept(this);
+        }
+        if(cur.cond != null) {
+            cur.cond.accept(this);
+        }
+        if(cur.step != null) {
+            cur.step.accept(this);
+        }
+        cur.body.accept(this);
+        currentScope = currentScope.getParentScope();
     }
 
     @Override public void visit(ForExpStatNode cur) {
-
+        if(cur.init != null) {
+            cur.init.accept(this);
+        }
+        if(cur.cond != null) {
+            cur.cond.accept(this);
+        }
+        if(cur.step != null) {
+            cur.step.accept(this);
+        }
+        cur.body.accept(this);
     }
 
     @Override public void visit(WhileStatNode cur) {
-
+        cur.cond.accept(this);
+        cur.body.accept(this);
     }
 
     @Override public void visit(breakStatNode cur) {
@@ -82,6 +109,11 @@ public class SemanticCheck implements ASTVistor {
     }
 
     @Override public void visit(exprStatNode cur) {
+        cur.expr.accept(this);
+    }
+
+
+    @Override public void visit(binaryExpNode cur) {
 
     }
 }

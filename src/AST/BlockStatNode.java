@@ -8,7 +8,7 @@ public class BlockStatNode extends StatNode {
     public BlockStatNode(position p) {
         super(p);
 //        stats.addAll(s);
-        stats = new ArrayList<StatNode>();
+        stats = new ArrayList<>();
     }
 
     @Override
