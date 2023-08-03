@@ -14,4 +14,7 @@ public class VoidType extends Type {
     public String toString() {
         return "Void";
     }
+
+    @Override
+    public boolean isVoid() {return  true;}
 }

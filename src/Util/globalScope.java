@@ -29,6 +29,13 @@ public class globalScope extends Scope{
         throw new semanticError("no such type: " + type, p);
     }
 
+    public Type getType_(String type, position p) {
+        if(types.containsValue(type)) {
+            return types.get(type);
+        }
+        throw new semanticError("no such type: " + type, p);
+    }
+
     public void newFunc(String func, FuncType f, position p) {
         if(funcs.containsValue(func)) {
             throw new semanticError("multiple definition of" + func, p);

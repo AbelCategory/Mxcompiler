@@ -14,4 +14,7 @@ public class BoolType extends Type {
     public String toString() {
         return "Bool";
     }
+
+    @Override
+    public boolean isBool() {return true;}
 }

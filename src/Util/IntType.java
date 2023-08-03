@@ -14,4 +14,7 @@ public class IntType extends Type {
     public String toString() {
         return "Int";
     }
+
+    @Override
+    public boolean isInt() {return true;}
 }

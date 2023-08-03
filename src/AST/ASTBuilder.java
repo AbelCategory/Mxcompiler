@@ -317,7 +317,7 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
         } else if(ctx.Null() != null) {
             return new NullNode(new position(ctx), nullType);
         } else if(ctx.This() != null) {
-            return new ThisNode(new position(ctx));
+            return new ThisNode(new position(ctx), nullType);
         } else{
             throw new semanticError("wrong literal type", new position(ctx));
         }

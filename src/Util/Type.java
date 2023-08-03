@@ -8,4 +8,9 @@ public abstract class Type
     public Type(String s) {Typename = s;}
     public abstract boolean equal(Object b);
     public abstract String toString();
+
+    public boolean isInt() {return false;}
+    public boolean isBool() {return false;}
+    public boolean isString() {return false;}
+    public boolean isVoid() {return  false;}
 }

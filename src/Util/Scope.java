@@ -6,13 +6,18 @@ import Error.semanticError;
 public class Scope {
     private HashMap<String, Type> members;
     private Scope parentScope;
-    boolean isLoop = false, isFunc = false;
+
+    public Type funcReturnType;
+    public boolean isClass = false;
+    public boolean isLoop = false, isFunc = false;
     public Scope(Scope parent) {
         members = new HashMap<>();
         parentScope = parent;
         if(parent != null) {
             isLoop = parent.isLoop;
             isFunc = parent.isFunc;
+            funcReturnType = parent.funcReturnType;
+            isClass = parent.isClass;
         }
     }
 
@@ -35,18 +40,24 @@ public class Scope {
         else return false;
     }
 
-    public Type getType(String id, position p) {
+    public Type getVarType(String id, position p) {
         if(members.containsValue(id)) {
             return members.get(id);
         }
         if(parentScope != null) {
-            return parentScope.getType(id, p);
+            return parentScope.getVarType(id, p);
         } else {
             throw new semanticError("not defined variable: " + id, p);
         }
     }
 
+    public Type getFuncReturnType() {
+        return funcReturnType;
+    }
+
     public boolean isInLoop() {return isLoop;}
 
     public boolean isInFunc() {return isFunc;}
+
+    public boolean isInClass() {return isClass;}
 }
