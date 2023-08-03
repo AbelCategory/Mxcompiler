@@ -1,6 +1,7 @@
 package Util;
 
-import java.util.Objects;
+import java.util.HashMap;
+import Error.semanticError;
 
 public class ClassType extends Type {
     public String className;
@@ -11,6 +12,7 @@ public class ClassType extends Type {
 
     @Override
     public boolean equal(Object b) {
+        if(b.getClass().equals(nulltype.class)) return true;
         return b.getClass().equals(ClassType.class) && className.equals(((ClassType) b).className);
     }
 

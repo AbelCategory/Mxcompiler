@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import Util.position;
 
 public class classNode extends ASTNode {
-    public ArrayList<varNode> varDef;
+    public ArrayList<varDefNode> varDef;
     public ArrayList<funcNode> funcDef;
     public funcNode constructor;
     public String name;

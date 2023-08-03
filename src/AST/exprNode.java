@@ -9,4 +9,6 @@ public abstract class exprNode extends ASTNode {
         super(p);
         type = t;
     }
+
+    public boolean isAssign() {return false;}
 }

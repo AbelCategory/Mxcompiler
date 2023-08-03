@@ -4,6 +4,6 @@ import Util.position;
 
 public class semanticError extends error {
     public semanticError(String msg, position p) {
-        super(msg, p);
+        super("Semantic error: " + msg, p);
     }
 }

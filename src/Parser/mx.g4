@@ -95,11 +95,11 @@ True: 'true';
 False: 'false';
 Null: 'null';
 This: 'this';
-WhiteSpace: [ \t\u000B\u000C\u00A0] -> channel(HIDDEN);
-NewLine: [\r\n\u2028\u2029] -> channel(HIDDEN);
+WhiteSpace: [ \t\u000B\u000C\u00A0] -> skip;
+NewLine: [\r\n\u2028\u2029] -> skip;
 
-LineCom: '//' ~[\r\n\u2028\u2029]* -> channel(HIDDEN);
-BlockCom: '/*' .*? '*/' -> channel(HIDDEN);
+LineCom: '//' ~[\r\n\u2028\u2029]* -> skip;
+BlockCom: '/*' .*? '*/' -> skip;
 
 LeftPa: '(';
 RightPa: ')';

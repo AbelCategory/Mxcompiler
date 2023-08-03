@@ -8,7 +8,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import java.util.List;
 import java.util.ListIterator;
 import Error.semanticError;
-import org.w3c.dom.Node;
 
 
 public class ASTBuilder extends mxBaseVisitor<ASTNode> {
@@ -17,17 +16,39 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
     public BoolType booltype = new BoolType();
     public StringType stringtype = new StringType();
     public VoidType voidtype = new VoidType();
+    public nulltype nullType = new nulltype();
+    public typeNode intNode = new typeNode("int");
+    public typeNode boolNode = new typeNode("bool");
+    public typeNode stringNode = new typeNode("string");
+    public typeNode voidNode = new typeNode("void");
+    public typeNode nullNode = new typeNode("null");
     public ASTBuilder(globalScope gs) {
         gScope = gs;
-        gScope.newType("int", inttype);
-        gScope.newType("bool", booltype);
-        gScope.newType("string", stringtype);
-        gScope.newType("void", voidtype);
+        gScope.newType("int", inttype, null);
+        gScope.newType("bool", booltype, null);
+        gScope.newType("string", stringtype, null);
+        gScope.newType("void", voidtype, null);
+        FuncType Mxprint = new FuncType("print", voidtype),
+                 Mxprintln = new FuncType("println", voidtype),
+                 MxprintInt = new FuncType("printInt", voidtype),
+                 MxprintlnInt = new FuncType("printlnInt", voidtype);
+        Mxprint.paraType.add(stringtype);
+        Mxprintln.paraType.add(stringtype);
+        MxprintInt.paraType.add(inttype);
+        MxprintlnInt.paraType.add(inttype);
+        FuncType MxgetString = new FuncType("getString", stringtype),
+                 MxgetInt = new FuncType("getInt", inttype);
+        FuncType MxtoString = new FuncType("toString", stringtype);
+        MxtoString.paraType.add(inttype);
+        gScope.newFunc("print", Mxprint, null);
+        gScope.newFunc("println", Mxprint, null);
+        gScope.newFunc("printInt", MxprintInt, null);
+        gScope.newFunc("printlnInt", MxprintlnInt, null);
+        gScope.newFunc("getString", MxgetString, null);
+        gScope.newFunc("getInt", MxgetInt, null);
+        gScope.newFunc("toString", MxtoString, null);
     }
     @Override public ASTNode visitProgram(mxParser.ProgramContext ctx) {
-//        ArrayList<funcNode> fun;
-//        ArrayList<classNode> cl;
-//        ArrayList<varDefNode> var;
         rtNode rt = new rtNode(new position(ctx), (funcNode) visitMainFn(ctx.mainFn()));
         List<mxParser.FuncDefContext> func = ctx.funcDef();
         List<mxParser.ClassDefContext> cl = ctx.classDef();
@@ -48,14 +69,15 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
     @Override public ASTNode visitMainFn(mxParser.MainFnContext ctx) {
 //        ArrayList<funcParameter> par = new ArrayList<>();
         BlockStatNode node = (BlockStatNode) visitSuite(ctx.suite());
-        funcNode rt = new funcNode("main", new position(ctx), inttype, node);
+        funcNode rt = new funcNode("main", new position(ctx), intNode, node);
         return rt;
     }
 
     @Override public ASTNode visitFuncDef(mxParser.FuncDefContext ctx) {
         BlockStatNode node = (BlockStatNode) visitSuite(ctx.suite());
         mxParser.TypenameContext t = ctx.typename();
-        funcNode rt = new funcNode(ctx.ID().getText(), new position(ctx), null, node);
+        typeNode tt = (typeNode) visitTypename(ctx.typename());
+        funcNode rt = new funcNode(ctx.ID().getText(), new position(ctx), tt, node);
         List<mxParser.TypenameContext> type = ctx.para().typename();
         List<TerminalNode> name = ctx.para().ID();
         ListIterator<mxParser.TypenameContext> i = type.listIterator();
@@ -63,7 +85,8 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
         while(i.hasNext() && j.hasNext()){
             TerminalNode x = j.next();
             mxParser.TypenameContext y = i.next();
-            rt.pa.add(new funcParameter(x.getText(), new position(y), null));
+            typeNode tp = (typeNode) visitTypename(y);
+            rt.pa.add(new funcParameter(x.getText(), new position(y), tp));
         }
         return rt;
     }
@@ -73,7 +96,7 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
         List<mxParser.VarDefContext> var = ctx.varDef();
         List<mxParser.FuncDefContext> fun = ctx.funcDef();
         for(mxParser.VarDefContext v : var) {
-            rt.varDef.add((varNode) visitVarDef(v));
+            rt.varDef.add((varDefNode) visitVarDef(v));
         }
         for(mxParser.FuncDefContext f: fun) {
             rt.funcDef.add((funcNode) visitFuncDef(f));
@@ -92,7 +115,7 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
 
     @Override public ASTNode visitConstructStat(mxParser.ConstructStatContext ctx) {
         BlockStatNode body = (BlockStatNode) visitSuite(ctx.suite());
-        return new funcNode(ctx.ID().getText(), new position(ctx), null, body);
+        return new funcNode(ctx.ID().getText(), new position(ctx), voidNode, body);
 //        return super.visitConstructStat(ctx);
     }
 
@@ -109,7 +132,8 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
 
     @Override public ASTNode visitVarDef(mxParser.VarDefContext ctx) {
 //        mxParser.TypenameContext t = ctx.typename();
-        varDefNode rt = new varDefNode(null, new position(ctx));
+        typeNode t = (typeNode) visitTypename(ctx.typename());
+        varDefNode rt = new varDefNode(t, new position(ctx));
         if(!ctx.varTerm().isEmpty()) {
             for(mxParser.VarTermContext var : ctx.varTerm()) {
                 rt.var.add((varNode) visitVarTerm(var));
@@ -291,7 +315,7 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
         } else if(ctx.False() != null) {
             return new BoolNode(false, new position(ctx), booltype);
         } else if(ctx.Null() != null) {
-            return new NullNode(new position(ctx));
+            return new NullNode(new position(ctx), nullType);
         } else if(ctx.This() != null) {
             return new ThisNode(new position(ctx));
         } else{
@@ -313,6 +337,17 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
                 cur.arguments.add((exprNode) visit(a));
         }
         return cur;
+    }
+
+    @Override public ASTNode visitTypename(mxParser.TypenameContext ctx) {
+        if(ctx.bracket().isEmpty()) {
+            typeNode t = new typeNode(ctx.ID().getText());
+            return t;
+        } else {
+            int dim = ctx.bracket().size();
+            typeArrayNode t = new typeArrayNode(ctx.ID().getText(), dim);
+            return  t;
+        }
     }
 
     @Override public ASTNode visitArrayIndex(mxParser.ArrayIndexContext ctx) {

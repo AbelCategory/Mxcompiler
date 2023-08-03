@@ -366,7 +366,7 @@ public class mxLexer extends Lexer {
 		"\u017c~\u0001\u0000\u0000\u0000\u017d\u017e\u0005,\u0000\u0000\u017e\u0080"+
 		"\u0001\u0000\u0000\u0000\u017f\u0180\u0005\"\u0000\u0000\u0180\u0082\u0001"+
 		"\u0000\u0000\u0000\t\u0000\u00da\u00e0\u00e2\u00e9\u00ed\u00f3\u011b\u0126"+
-		"\u0001\u0000\u0001\u0000";
+		"\u0001\u0006\u0000\u0000";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

@@ -5,9 +5,9 @@ import Util.Type;
 import java.util.ArrayList;
 
 public class varDefNode extends StatNode {
-    public Type type;
+    public typeNode type;
     public ArrayList<varNode> var;
-    public varDefNode(Type t, position p) {
+    public varDefNode(typeNode t, position p) {
         super(p);
         type = t;
 //        var.addAll(v);

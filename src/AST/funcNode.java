@@ -7,11 +7,11 @@ import Util.funcParameter;
 import java.util.ArrayList;
 
 public class funcNode extends ASTNode {
-    public Type tp;
+    public typeNode tp;
     public String name;
     public ArrayList<funcParameter> pa;
     public BlockStatNode body;
-    public funcNode(String id, position pos, Type tp, BlockStatNode b) {
+    public funcNode(String id, position pos, typeNode tp, BlockStatNode b) {
         super(pos);
         name = id;
         this.tp = tp;

@@ -1,17 +1,45 @@
+import java.io.FileInputStream;
+import java.io.InputStream;
+
+import AST.ASTBuilder;
+import AST.SemanticCheck;
+import AST.SymbolCollector;
+import AST.rtNode;
+import Error.error;
+import Error.mxErrorListener;
+import Util.globalScope;
+import Parser.mxParser;
+import Parser.mxLexer;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
 public class Main {
-    public static void main(String[] args) {
-        // Press Alt+Enter with your caret at the highlighted text to see how
-        // IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+    public static void main(String[] args) throws Exception {
+        String name = "1.mx";
+        InputStream input = new FileInputStream(name);
+        try{
+            globalScope gScope = new globalScope(null);
 
-        // Press Shift+F10 or click the green arrow button in the gutter to run the code.
-        for (int i = 1; i <= 5; i++) {
+            mxLexer lexer = new mxLexer(CharStreams.fromStream(input));
+            lexer.removeErrorListeners();
+            lexer.addErrorListener(new mxErrorListener());
 
-            // Press Shift+F9 to start debugging your code. We have set one breakpoint
-            // for you, but you can always add more by pressing Ctrl+F8.
-            System.out.println("i = " + i);
+            mxParser parser = new mxParser(new CommonTokenStream(lexer));
+            parser.removeErrorListeners();
+            parser.addErrorListener(new mxErrorListener());
+            ParseTree parseTreeRoot = parser.program();
+            ASTBuilder astBuilder = new ASTBuilder(gScope);
+            rtNode rt = (rtNode)astBuilder.visit(parseTreeRoot);
+
+            new SymbolCollector(gScope).visit(rt);
+            new SemanticCheck(gScope).visit(rt);
+
+        } catch (error er) {
+            System.err.println(er.toString());
+            throw new RuntimeException();
         }
     }
 }
