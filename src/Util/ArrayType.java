@@ -19,4 +19,15 @@ public class ArrayType extends Type {
     public String toString() {
         return "array: " + type.toString();
     }
+
+    @Override
+    public boolean isArray() {return true;}
+
+    public Type index() {
+        if(dim == 1) {
+            return type;
+        } else {
+            return new ArrayType(type, dim - 1);
+        }
+    }
 }

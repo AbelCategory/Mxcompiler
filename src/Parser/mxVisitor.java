@@ -265,9 +265,48 @@ public interface mxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTypename(mxParser.TypenameContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link mxParser#primitivetype}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrimitivetype(mxParser.PrimitivetypeContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link mxParser#bracket}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitBracket(mxParser.BracketContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link mxParser#exprbracket}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExprbracket(mxParser.ExprbracketContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link mxParser#new_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNew_expr(mxParser.New_exprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code newClass}
+	 * labeled alternative in {@link mxParser#newTypename}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNewClass(mxParser.NewClassContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code newClassArray}
+	 * labeled alternative in {@link mxParser#newTypename}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNewClassArray(mxParser.NewClassArrayContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code primitiveArray}
+	 * labeled alternative in {@link mxParser#newTypename}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrimitiveArray(mxParser.PrimitiveArrayContext ctx);
 }

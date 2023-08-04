@@ -28,6 +28,7 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
         gScope.newType("bool", booltype, null);
         gScope.newType("string", stringtype, null);
         gScope.newType("void", voidtype, null);
+        gScope.newType("null", nullType, null);
         FuncType Mxprint = new FuncType("print", voidtype),
                  Mxprintln = new FuncType("println", voidtype),
                  MxprintInt = new FuncType("printInt", voidtype),
@@ -75,7 +76,6 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
 
     @Override public ASTNode visitFuncDef(mxParser.FuncDefContext ctx) {
         BlockStatNode node = (BlockStatNode) visitSuite(ctx.suite());
-        mxParser.TypenameContext t = ctx.typename();
         typeNode tt = (typeNode) visitTypename(ctx.typename());
         funcNode rt = new funcNode(ctx.ID().getText(), new position(ctx), tt, node);
         List<mxParser.TypenameContext> type = ctx.para().typename();
@@ -317,16 +317,43 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
         } else if(ctx.Null() != null) {
             return new NullNode(new position(ctx), nullType);
         } else if(ctx.This() != null) {
-            return new ThisNode(new position(ctx), nullType);
+            return new ThisNode(new position(ctx));
         } else{
             throw new semanticError("wrong literal type", new position(ctx));
         }
     }
 
     @Override public ASTNode visitNew_expression(mxParser.New_expressionContext ctx) {
-        mxParser.TypenameContext tp = ctx.typename();
-        NewExpNode rt = new NewExpNode(1, new position(ctx), null);
-        return rt;
+        newTypeNode nw = (newTypeNode) visit(ctx.new_expr());
+        return new NewExpNode(nw, new position(ctx));
+    }
+
+    @Override public ASTNode visitNewClass(mxParser.NewClassContext ctx) {
+        String type = ctx.getText();
+        return new newTypeNode(type, 0);
+    }
+
+    @Override public ASTNode visitNewClassArray(mxParser.NewClassArrayContext ctx) {
+        String type = ctx.getText();
+        newTypeNode cur = new newTypeNode(type, ctx.exprbracket().size() + ctx.bracket().size());
+        for(mxParser.ExprbracketContext exp : ctx.exprbracket()) {
+            exprNode e = (exprNode) visit(exp.expr());
+            cur.exprs.add(e);
+        }
+        return cur;
+    }
+
+    @Override public ASTNode visitPrimitiveArray(mxParser.PrimitiveArrayContext ctx) {
+        String type = ctx.getText();
+        if(type.equals("void")) {
+            throw new semanticError("cannot new a void array", new position(ctx));
+        }
+        newTypeNode cur = new newTypeNode(type, ctx.exprbracket().size() + ctx.bracket().size());
+        for(mxParser.ExprbracketContext exp : ctx.exprbracket()) {
+            exprNode e = (exprNode) visit(exp.expr());
+            cur.exprs.add(e);
+        }
+        return cur;
     }
 
     @Override public ASTNode visitFunctionCall(mxParser.FunctionCallContext ctx) {

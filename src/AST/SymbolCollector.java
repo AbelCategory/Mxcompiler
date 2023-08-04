@@ -10,7 +10,7 @@ public class SymbolCollector implements ASTVistor {
     @Override public void visit(rtNode cur) {
         cur.classDef.forEach(c -> c.accept(this));
         cur.funcDef.forEach(f -> f.accept(this));
-        cur.classDef.forEach(c -> visitMem(c));
+        cur.classDef.forEach(this::visitMem);
 //        cur.classDef.forEach(c -> check(c));
     }
 

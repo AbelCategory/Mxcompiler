@@ -14,4 +14,7 @@ public class nulltype extends Type {
     public String toString() {
         return "Null";
     }
+
+    @Override
+    public boolean isNull() {return true;}
 }

@@ -12,6 +12,7 @@ public class SemanticCheck implements ASTVistor {
         this.gScope = gScope;
         booltype = gScope.getType_("bool", null);
         inttype = gScope.getType_("int", null);
+//        nullType = gScope.getType_("null", null);
     }
 
     @Override public void visit(rtNode cur) {
@@ -148,6 +149,10 @@ public class SemanticCheck implements ASTVistor {
     @Override public void visit(binaryExpNode cur) {
         cur.lhs.accept(this);
         cur.rhs.accept(this);
+        if((cur.op == BinaryOperator.EQ || cur.op == BinaryOperator.NEQ) && (cur.lhs.type.isNull() || cur.rhs.type.isNull())) {
+            cur.type = booltype;
+            return;
+        }
         if(!cur.lhs.type.equal(cur.rhs.type)) {
             throw new semanticError("type not matched", cur.pos);
         }
@@ -260,10 +265,22 @@ public class SemanticCheck implements ASTVistor {
     }
 
     @Override public void visit(ArrayExpNode cur) {
-
+        cur.array.accept(this);
+        if(!cur.array.type.isArray()) {
+            throw new semanticError("try to visit index of not array", cur.pos);
+        }
+        cur.index.accept(this);
+        cur.type = ((ArrayType) cur.array.type).index();
     }
 
     @Override public void visit(varExpNode cur) {
         cur.type = currentScope.getVarType(cur.name, cur.pos);
+    }
+
+    @Override public void visit(NewExpNode cur) {
+        if(cur.tp.dim != 0) {
+            cur.tp.exprs.forEach(e -> e.accept(this));
+        }
+        cur.type = gScope.getType(cur.typ, cur.pos);
     }
 }

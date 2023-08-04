@@ -55,7 +55,7 @@ expr: basic_expr                                #basic_expression
 
 basic_expr: const                                             #constvalue
           | ID                                                #variable
-          | <assoc=right> New typename ('(' ')')?             #new_expression
+          | new_expr                                          #new_expression
           ;
 
 argu: expr (',' expr)*;
@@ -65,7 +65,17 @@ para: typename ID (',' typename ID)*;
 const: Num | True | False | Str | Null | This;
 
 typename: (Int | Bool | Void | String | ID) bracket*;
+primitivetype: Int | Bool | Void | String;
+
 bracket: '[' ']';
+exprbracket: '[' expr ']';
+
+new_expr: 'new' newTypename ('(' ')')?;
+
+newTypename: ID                                   #newClass
+           | ID exprbracket+ bracket*             #newClassArray
+           | primitivetype exprbracket+ bracket*  #primitiveArray
+           ;
 
 Int: 'int';
 Bool: 'bool';

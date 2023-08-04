@@ -440,6 +440,16 @@ public interface mxListener extends ParseTreeListener {
 	 */
 	void exitTypename(mxParser.TypenameContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link mxParser#primitivetype}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimitivetype(mxParser.PrimitivetypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link mxParser#primitivetype}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimitivetype(mxParser.PrimitivetypeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link mxParser#bracket}.
 	 * @param ctx the parse tree
 	 */
@@ -449,4 +459,60 @@ public interface mxListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBracket(mxParser.BracketContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link mxParser#exprbracket}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprbracket(mxParser.ExprbracketContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link mxParser#exprbracket}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprbracket(mxParser.ExprbracketContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link mxParser#new_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterNew_expr(mxParser.New_exprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link mxParser#new_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitNew_expr(mxParser.New_exprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code newClass}
+	 * labeled alternative in {@link mxParser#newTypename}.
+	 * @param ctx the parse tree
+	 */
+	void enterNewClass(mxParser.NewClassContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code newClass}
+	 * labeled alternative in {@link mxParser#newTypename}.
+	 * @param ctx the parse tree
+	 */
+	void exitNewClass(mxParser.NewClassContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code newClassArray}
+	 * labeled alternative in {@link mxParser#newTypename}.
+	 * @param ctx the parse tree
+	 */
+	void enterNewClassArray(mxParser.NewClassArrayContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code newClassArray}
+	 * labeled alternative in {@link mxParser#newTypename}.
+	 * @param ctx the parse tree
+	 */
+	void exitNewClassArray(mxParser.NewClassArrayContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code primitiveArray}
+	 * labeled alternative in {@link mxParser#newTypename}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimitiveArray(mxParser.PrimitiveArrayContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code primitiveArray}
+	 * labeled alternative in {@link mxParser#newTypename}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimitiveArray(mxParser.PrimitiveArrayContext ctx);
 }

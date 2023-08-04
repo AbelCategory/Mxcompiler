@@ -36,6 +36,7 @@ public class Main {
 
             new SymbolCollector(gScope).visit(rt);
             new SemanticCheck(gScope).visit(rt);
+            System.out.println("Compiler OK");
 
         } catch (error er) {
             System.err.println(er.toString());

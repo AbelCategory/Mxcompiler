@@ -1,17 +1,18 @@
 package AST;
 
-import java.util.ArrayList;
-import Util.Type;
 import Util.position;
 
 public class NewExpNode extends exprNode {
-    public ArrayList<exprNode> arguments;
-    public int dim;
-    public NewExpNode(int d, position p, Type type) {
-        super(p, type);
-        dim = d;
-//        arguments.addAll(arg);
-        arguments = new ArrayList<>();
+    newTypeNode tp;
+    typeNode typ;
+    public NewExpNode(newTypeNode cur, position p) {
+        super(p, null);
+        tp = cur;
+        if(cur.dim == 0){
+            typ = new typeNode(cur.type);
+        } else {
+            typ = new typeArrayNode(cur.type, cur.dim);
+        }
     }
 
     @Override
