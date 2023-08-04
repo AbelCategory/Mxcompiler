@@ -26,14 +26,14 @@ public class Scope {
     }
 
     public void newVariable(String id, Type t, position p) {
-        if(members.containsValue(id)) {
+        if(members.containsKey(id)) {
             throw new semanticError("multi definition of variable" + id, p);
         }
         members.put(id, t);
     }
 
     public boolean variableDefined(String id) {
-        if(members.containsValue(id))
+        if(members.containsKey(id))
             return true;
         else if(parentScope != null)
             return parentScope.variableDefined(id);
@@ -41,7 +41,7 @@ public class Scope {
     }
 
     public Type getVarType(String id, position p) {
-        if(members.containsValue(id)) {
+        if(members.containsKey(id)) {
             return members.get(id);
         }
         if(parentScope != null) {

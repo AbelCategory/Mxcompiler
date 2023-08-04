@@ -46,6 +46,9 @@ public class SemanticCheck implements ASTVistor {
     }
 
     @Override public void visit(varNode cur) {
+        if(gScope.funcDefined(cur.name)) {
+            throw new semanticError("variable name and function name coincide", cur.pos);
+        }
         cur.body.accept(this);
         if(!cur.body.type.equal(currentType)) {
             throw new semanticError("Type not match the defintion of " + cur.name, cur.pos);

@@ -48,6 +48,17 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
         gScope.newFunc("getString", MxgetString, null);
         gScope.newFunc("getInt", MxgetInt, null);
         gScope.newFunc("toString", MxtoString, null);
+
+        FuncType Mxlength = new FuncType("length", inttype);
+        FuncType Mxsubstring = new FuncType("substring", stringtype);
+        FuncType MxparseInt = new FuncType("parseInt", inttype);
+        FuncType Mxord = new FuncType("ord", inttype);
+        Mxsubstring.paraType.add(inttype); Mxsubstring.paraType.add(inttype);
+        Mxord.paraType.add(inttype);
+        gScope.newFunc("string::length", Mxlength, null);
+        gScope.newFunc("string::substring", Mxsubstring, null);
+        gScope.newFunc("string::parseInt", MxparseInt, null);
+        gScope.newFunc("string::ord", Mxord, null);
     }
     @Override public ASTNode visitProgram(mxParser.ProgramContext ctx) {
         rtNode rt = new rtNode(new position(ctx), (funcNode) visitMainFn(ctx.mainFn()));
@@ -367,12 +378,24 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitTypename(mxParser.TypenameContext ctx) {
+        String s;
+        if(ctx.Int() != null) {
+            s = "int";
+        } else if(ctx.Bool() != null) {
+            s = "bool";
+        } else if(ctx.Void() != null) {
+            s = "void";
+        } else if(ctx.String() != null) {
+            s = "string";
+        } else {
+            s = ctx.ID().getText();
+        }
         if(ctx.bracket().isEmpty()) {
-            typeNode t = new typeNode(ctx.ID().getText());
+            typeNode t = new typeNode(s);
             return t;
         } else {
             int dim = ctx.bracket().size();
-            typeArrayNode t = new typeArrayNode(ctx.ID().getText(), dim);
+            typeArrayNode t = new typeArrayNode(s, dim);
             return  t;
         }
     }

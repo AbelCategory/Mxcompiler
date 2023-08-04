@@ -10,6 +10,7 @@ public class varDefNode extends StatNode {
     public varDefNode(typeNode t, position p) {
         super(p);
         type = t;
+        var = new ArrayList<>();
 //        var.addAll(v);
     }
 

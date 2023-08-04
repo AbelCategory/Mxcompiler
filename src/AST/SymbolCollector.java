@@ -1,6 +1,7 @@
 package AST;
 
 import Util.*;
+import Error.semanticError;
 
 public class SymbolCollector implements ASTVistor {
     private globalScope gScope;
@@ -15,7 +16,7 @@ public class SymbolCollector implements ASTVistor {
     }
 
     private void visitMem(classNode c) {
-        c.funcDef.forEach(f -> visitFunMem(c, f));
+//        c.funcDef.forEach(f -> visitFunMem(c, f));
         c.varDef.forEach(v -> visitVarMem(c, v));
     }
 
@@ -39,6 +40,9 @@ public class SymbolCollector implements ASTVistor {
         gScope.newType(cur.name, cl, cur.pos);
     }
     @Override public void visit(funcNode cur) {
+        if(gScope.typeDefined(cur.name)) {
+            throw new semanticError("function name and typename coincide", cur.pos);
+        }
         FuncType func = new FuncType(cur.name, gScope.getType(cur.tp, cur.pos));
         cur.pa.forEach(aug -> func.paraType.add(gScope.getType(aug.type, aug.p)));
         gScope.newFunc(cur.name, func, cur.pos);

@@ -12,13 +12,13 @@ public class globalScope extends Scope{
         super(parentScope);
     }
     public void newType(String type, Type t, position p) {
-        if(types.containsValue(type)) {
+        if(types.containsKey(type)) {
             throw new semanticError("multiple definition of" + type, p);
         }
         types.put(type, t);
     }
     public Type getType(typeNode type, position p) {
-        if(types.containsValue(type.type)) {
+        if(types.containsKey(type.type)) {
             if(type.isArray()){
                 Type t = types.get(type.type);
                 return new ArrayType(t, ((typeArrayNode) type).dim);
@@ -29,25 +29,30 @@ public class globalScope extends Scope{
         throw new semanticError("no such type: " + type, p);
     }
 
+    public boolean typeDefined(String type) {
+        return types.containsKey(type);
+    }
+
+    public boolean funcDefined(String func) {
+        return types.containsKey(func);
+    }
+
     public Type getType_(String type, position p) {
-        if(types.containsValue(type)) {
+        if(types.containsKey(type)) {
             return types.get(type);
         }
         throw new semanticError("no such type: " + type, p);
     }
 
     public void newFunc(String func, FuncType f, position p) {
-        if(funcs.containsValue(func)) {
+        if(funcs.containsKey(func)) {
             throw new semanticError("multiple definition of" + func, p);
-        }
-        if(types.containsValue(func)) {
-            throw new semanticError("function and class with same name: " + func, p);
         }
         funcs.put(func, f);
     }
 
     public FuncType getFunc(String func, position p) {
-        if(funcs.containsValue(func)){
+        if(funcs.containsKey(func)){
             return funcs.get(func);
         }
         throw new semanticError("no such function: " + func, p);
