@@ -4,6 +4,7 @@ import Util.*;
 import Parser.mxBaseVisitor;
 import Parser.mxParser;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import java.util.List;
 import java.util.ListIterator;
@@ -61,32 +62,63 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
         gScope.newFunc("string::ord", Mxord, null);
 
         FuncType MxSize = new FuncType("size", inttype);
-        gScope.newFunc("Array::size", MxSize, null);
+        gScope.newFunc("_Array::size", MxSize, null);
     }
     @Override public ASTNode visitProgram(mxParser.ProgramContext ctx) {
-        rtNode rt = new rtNode(new position(ctx), (funcNode) visitMainFn(ctx.mainFn()));
-        List<mxParser.FuncDefContext> func = ctx.funcDef();
-        List<mxParser.ClassDefContext> cl = ctx.classDef();
-        List<mxParser.VarDefContext> var = ctx.varDef();
-        for(mxParser.FuncDefContext f : func) {
-            rt.funcDef.add((funcNode) visitFuncDef(f));
+        rtNode rt = new rtNode(new position(ctx) /*, (funcNode) visitMainFn(ctx.mainFn())*/);
+        for(mxParser.DefContext d : ctx.def()) {
+            ASTNode cur;
+            if(d.funcDef() != null) {
+                if(d.funcDef().ID().getText().equals("main")) {
+                    if(rt.mainFn != null) {
+                        throw new semanticError("multiply definition of main", new position(d));
+                    }
+                    rt.mainFn = (funcNode) (cur = visitFuncDef(d.funcDef()));
+                    if(rt.mainFn.tp.isArray() || !rt.mainFn.tp.type.equals("int")) {
+                        throw new semanticError("main function return type wrong", rt.mainFn.pos);
+                    }
+                    if(!rt.mainFn.pa.isEmpty()) {
+                        throw new semanticError("main should not hava parameter", rt.mainFn.pos);
+                    }
+                } else {
+                    rt.funcDef.add((funcNode) (cur = visitFuncDef(d.funcDef())));
+                }
+//                if((funcNode) cur)
+            } else if(d.classDef() != null) {
+                rt.classDef.add((classNode) (cur = visitClassDef(d.classDef())));
+
+            } else if(d.varDef() != null) {
+                rt.varDef.add((varDefNode) (cur = visitVarDef(d.varDef())));
+            } else {
+                throw new semanticError("wrong definition", new position(d));
+            }
+            rt.def.add(cur);
         }
-        for(mxParser.ClassDefContext c : cl) {
-            rt.classDef.add((classNode) visitClassDef(c));
+        if(rt.mainFn == null) {
+            throw new semanticError("no main function", rt.pos);
         }
-        for(mxParser.VarDefContext v : var) {
-            rt.varDef.add((varDefNode) visitVarDef(v));
-        }
+//        List<mxParser.FuncDefContext> func = ctx.funcDef();
+//        List<mxParser.ClassDefContext> cl = ctx.classDef();
+//        List<mxParser.VarDefContext> var = ctx.varDef();
+//        for(mxParser.FuncDefContext f : func) {
+//            rt.funcDef.add((funcNode) visitFuncDef(f));
+//        }
+//        for(mxParser.ClassDefContext c : cl) {
+//            rt.classDef.add((classNode) visitClassDef(c));
+//        }
+//        for(mxParser.VarDefContext v : var) {
+//            rt.varDef.add((varDefNode) visitVarDef(v));
+//        }
         return rt;
 //        rtNode rt = new rtNode(new position(ctx), )
     }
 
-    @Override public ASTNode visitMainFn(mxParser.MainFnContext ctx) {
-//        ArrayList<funcParameter> par = new ArrayList<>();
-        BlockStatNode node = (BlockStatNode) visitSuite(ctx.suite());
-        funcNode rt = new funcNode("main", new position(ctx), intNode, node);
-        return rt;
-    }
+//    @Override public ASTNode visitMainFn(mxParser.MainFnContext ctx) {
+////        ArrayList<funcParameter> par = new ArrayList<>();
+//        BlockStatNode node = (BlockStatNode) visitSuite(ctx.suite());
+//        funcNode rt = new funcNode("main", new position(ctx), intNode, node);
+//        return rt;
+//    }
 
     @Override public ASTNode visitFuncDef(mxParser.FuncDefContext ctx) {
         BlockStatNode node = (BlockStatNode) visitSuite(ctx.suite());
@@ -109,23 +141,44 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
 
     @Override public ASTNode visitClassDef(mxParser.ClassDefContext ctx) {
         classNode rt = new classNode(ctx.ID().getText(), new position(ctx));
-        List<mxParser.VarDefContext> var = ctx.varDef();
-        List<mxParser.FuncDefContext> fun = ctx.funcDef();
-        for(mxParser.VarDefContext v : var) {
-            rt.varDef.add((varDefNode) visitVarDef(v));
-        }
-        for(mxParser.FuncDefContext f: fun) {
-            rt.funcDef.add((funcNode) visitFuncDef(f));
-        }
-        if(!ctx.constructStat().isEmpty()) {
-            if(ctx.constructStat().size() > 1) {
-                throw new semanticError("more than one constructor", rt.pos);
+        for(mxParser.CdefContext c : ctx.cdef()) {
+            ASTNode cur;
+            if(c.funcDef() != null) {
+                rt.funcDef.add((funcNode) (cur = visitFuncDef(c.funcDef())));
+            } else if(c.varDef() != null) {
+                rt.varDef.add((varDefNode) (cur = visitVarDef(c.varDef())));
+            } else if(c.constructStat() != null) {
+                cur = visitConstructStat(c.constructStat());
+                if(rt.constructor != null) {
+                    throw new semanticError("more than one constructor", rt.pos);
+                }
+                rt.constructor = (funcNode) cur;
+                if(!rt.constructor.name.equals(rt.name)) {
+                    throw new semanticError("wrong constructor name", rt.constructor.pos);
+                }
+                rt.constructor.tp = voidNode;
+            } else {
+                throw new semanticError("wrong definition", new position(c));
             }
-            rt.constructor = (funcNode) visitConstructStat(ctx.constructStat(0));
-            if(!rt.constructor.name.equals(rt.name)) {
-                throw new semanticError("wrong constructor name", rt.constructor.pos);
-            }
+            rt.cdef.add(cur);
         }
+//        List<mxParser.VarDefContext> var = ctx.varDef();
+//        List<mxParser.FuncDefContext> fun = ctx.funcDef();
+//        for(mxParser.VarDefContext v : var) {
+//            rt.varDef.add((varDefNode) visitVarDef(v));
+//        }
+//        for(mxParser.FuncDefContext f: fun) {
+//            rt.funcDef.add((funcNode) visitFuncDef(f));
+//        }
+//        if(!ctx.constructStat().isEmpty()) {
+//            if(ctx.constructStat().size() > 1) {
+//                throw new semanticError("more than one constructor", rt.pos);
+//            }
+//            rt.constructor = (funcNode) visitConstructStat(ctx.constructStat(0));
+//            if(!rt.constructor.name.equals(rt.name)) {
+//                throw new semanticError("wrong constructor name", rt.constructor.pos);
+//            }
+//        }
         return rt;
     }
 
@@ -149,6 +202,9 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
     @Override public ASTNode visitVarDef(mxParser.VarDefContext ctx) {
 //        mxParser.TypenameContext t = ctx.typename();
         typeNode t = (typeNode) visitTypename(ctx.typename());
+        if(t.type == "void") {
+            throw new semanticError("variable cannot be void", new position(ctx));
+        }
         varDefNode rt = new varDefNode(t, new position(ctx));
         if(!ctx.varTerm().isEmpty()) {
             for(mxParser.VarTermContext var : ctx.varTerm()) {

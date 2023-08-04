@@ -11,13 +11,17 @@ public class SymbolCollector implements ASTVistor {
     @Override public void visit(rtNode cur) {
         cur.classDef.forEach(c -> c.accept(this));
         cur.funcDef.forEach(f -> f.accept(this));
+        cur.mainFn.accept(this);
         cur.classDef.forEach(this::visitMem);
 //        cur.classDef.forEach(c -> check(c));
     }
 
     private void visitMem(classNode c) {
-//        c.funcDef.forEach(f -> visitFunMem(c, f));
+        c.funcDef.forEach(f -> visitFunMem(c, f));
         c.varDef.forEach(v -> visitVarMem(c, v));
+        if(c.constructor != null) {
+//            c.constructor.tp =
+        }
     }
 
     private void visitFunMem(classNode c, funcNode f) {
@@ -35,10 +39,14 @@ public class SymbolCollector implements ASTVistor {
 
 
     @Override public void visit(classNode cur) {
+        if(cur.name.equals("main")) {
+            throw new semanticError("class name cannot be main", cur.pos);
+        }
         ClassType cl = new ClassType(cur.name);
         cur.varDef.forEach(v -> v.accept(this));
         gScope.newType(cur.name, cl, cur.pos);
     }
+
     @Override public void visit(funcNode cur) {
         if(gScope.typeDefined(cur.name)) {
             throw new semanticError("function name and typename coincide", cur.pos);
@@ -48,6 +56,7 @@ public class SymbolCollector implements ASTVistor {
         gScope.newFunc(cur.name, func, cur.pos);
 //        cur.pa.forEach(aug -> check(aug));
     }
+
     @Override public void visit(varDefNode cur) {}
     @Override public void visit(varNode cur) {}
 

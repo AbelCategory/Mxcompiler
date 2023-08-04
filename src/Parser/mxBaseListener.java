@@ -29,13 +29,13 @@ public class mxBaseListener implements mxListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMainFn(mxParser.MainFnContext ctx) { }
+	@Override public void enterDef(mxParser.DefContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMainFn(mxParser.MainFnContext ctx) { }
+	@Override public void exitDef(mxParser.DefContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -60,6 +60,18 @@ public class mxBaseListener implements mxListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitVarTerm(mxParser.VarTermContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCdef(mxParser.CdefContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCdef(mxParser.CdefContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

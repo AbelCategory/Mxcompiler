@@ -17,4 +17,7 @@ public class StringType extends Type {
 
     @Override
     public boolean isString() {return true;}
+
+    @Override
+    public String getTypename() {return "string";}
 }

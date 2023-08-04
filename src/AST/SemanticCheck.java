@@ -18,10 +18,11 @@ public class SemanticCheck implements ASTVistor {
 
     @Override public void visit(rtNode cur) {
         currentScope = gScope;
-        cur.funcDef.forEach(f -> f.accept(this));
-        cur.classDef.forEach(c -> c.accept(this));
-        cur.varDef.forEach(v -> v.accept(this));
-        cur.mainFn.accept(this);
+//        cur.funcDef.forEach(f -> f.accept(this));
+//        cur.classDef.forEach(c -> c.accept(this));
+//        cur.varDef.forEach(v -> v.accept(this));
+        cur.def.forEach(d -> d.accept(this));
+//        cur.mainFn.accept(this);
     }
 
     @Override public void visit(funcNode cur) {
@@ -37,11 +38,12 @@ public class SemanticCheck implements ASTVistor {
         currentScope = new Scope(currentScope);
         currentScope.isClass = true;
         currentScope.thisClassType = gScope.getType_(cur.name, cur.pos);
-        if(cur.constructor != null){
-            cur.constructor.accept(this);
-        }
-        cur.funcDef.forEach(f -> f.accept(this));
-        cur.varDef.forEach(v -> v.accept(this));
+//        if(cur.constructor != null){
+//            cur.constructor.accept(this);
+//        }
+//        cur.funcDef.forEach(f -> f.accept(this));
+//        cur.varDef.forEach(v -> v.accept(this));
+        cur.cdef.forEach(c -> c.accept(this));
         currentScope = currentScope.getParentScope();
     }
 
@@ -57,8 +59,16 @@ public class SemanticCheck implements ASTVistor {
         if(cur.body != null) {
             cur.body.accept(this);
         }
-        if(cur.body != null && !cur.body.type.equal(currentType)) {
-            throw new semanticError("Type not match the definition of " + cur.name, cur.pos);
+        if(cur.body != null) {
+            if(cur.body.type.isNull()) {
+                if(!currentType.isClass() && !currentType.isArray()) {
+                    throw new semanticError("assign a null to basic type variable " + cur.name, cur.pos);
+                }
+            } else {
+                if(!cur.body.type.equal(currentType)) {
+                    throw new semanticError("Type not match the definition of " + cur.name, cur.pos);
+                }
+            }
         }
         currentScope.newVariable(cur.name, currentType, cur.pos);
     }
@@ -145,9 +155,15 @@ public class SemanticCheck implements ASTVistor {
         if(!currentScope.isInFunc()) {
             throw new semanticError("return in not function", cur.pos);
         }
-        cur.expr.accept(this);
-        if(!cur.expr.type.equal(currentScope.getFuncReturnType())) {
-            throw new semanticError("return type not matched", cur.pos);
+        if(cur.expr == null) {
+            if(!currentScope.getFuncReturnType().isVoid()) {
+                throw new semanticError("ths function should be void", cur.pos);
+            }
+        } else {
+            cur.expr.accept(this);
+            if (!cur.expr.type.equal(currentScope.getFuncReturnType())) {
+                throw new semanticError("return type not matched", cur.pos);
+            }
         }
     }
 
@@ -280,7 +296,7 @@ public class SemanticCheck implements ASTVistor {
     @Override public void visit(memberFuncNode cur) {
         cur.obj.accept(this);
         Type t = cur.obj.type;
-        String cla = t.Typename;
+        String cla = t.getTypename();
         FuncType fun = gScope.getFunc(cla + "::" + cur.funcName, cur.pos);
         if(fun.paraType.size() != cur.arguments.size()) {
             throw new semanticError("arguments number not matched", cur.pos);
@@ -299,7 +315,7 @@ public class SemanticCheck implements ASTVistor {
     @Override public void visit(memberVarNode cur) {
         cur.obj.accept(this);
         Type t = cur.obj.type;
-        String cla = t.Typename;
+        String cla = t.getTypename();
         cur.type = gScope.getVarType(cla + "::" + cur.varName, cur.pos);
     }
 

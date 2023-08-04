@@ -17,5 +17,8 @@ public class memberVarNode extends exprNode {
         vis.visit(this);
     }
 
-    @Override public boolean isAssign() {return obj.isAssign();}
+    @Override public boolean isAssign() {
+        if(obj.getClass().equals(ThisNode.class)) return true;
+        return obj.isAssign();
+    }
 }

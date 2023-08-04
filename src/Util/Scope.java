@@ -28,7 +28,7 @@ public class Scope {
 
     public void newVariable(String id, Type t, position p) {
         if(members.containsKey(id)) {
-            throw new semanticError("multi definition of variable" + id, p);
+            throw new semanticError("multi definition of variable: " + id, p);
         }
         members.put(id, t);
     }

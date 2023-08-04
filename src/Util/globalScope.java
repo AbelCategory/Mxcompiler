@@ -13,7 +13,7 @@ public class globalScope extends Scope{
     }
     public void newType(String type, Type t, position p) {
         if(types.containsKey(type)) {
-            throw new semanticError("multiple definition of" + type, p);
+            throw new semanticError("multiple definition of class " + type, p);
         }
         types.put(type, t);
     }
@@ -26,7 +26,7 @@ public class globalScope extends Scope{
                 return types.get(type.type);
             }
         }
-        throw new semanticError("no such type: " + type, p);
+        throw new semanticError("no such type: " + type.type, p);
     }
 
     public boolean typeDefined(String type) {
@@ -34,7 +34,7 @@ public class globalScope extends Scope{
     }
 
     public boolean funcDefined(String func) {
-        return types.containsKey(func);
+        return funcs.containsKey(func);
     }
 
     public Type getType_(String type, position p) {
@@ -46,7 +46,7 @@ public class globalScope extends Scope{
 
     public void newFunc(String func, FuncType f, position p) {
         if(funcs.containsKey(func)) {
-            throw new semanticError("multiple definition of" + func, p);
+            throw new semanticError("multiple definition of function " + func, p);
         }
         funcs.put(func, f);
     }

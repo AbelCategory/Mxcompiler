@@ -30,4 +30,7 @@ public class ArrayType extends Type {
             return new ArrayType(type, dim - 1);
         }
     }
+
+    @Override
+    public String getTypename() {return "_Array";}
 }

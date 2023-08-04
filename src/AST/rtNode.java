@@ -8,14 +8,15 @@ public class rtNode extends ASTNode {
     public ArrayList<classNode> classDef;
     public ArrayList<funcNode> funcDef;
     public ArrayList<varDefNode> varDef;
+    public ArrayList<ASTNode> def;
     funcNode mainFn;
 
-    public rtNode(position p, funcNode mainFn) {
+    public rtNode(position p) {
         super(p);
         classDef = new ArrayList<>();
         funcDef = new ArrayList<>();
         varDef = new ArrayList<>();
-        this.mainFn = mainFn;
+        def = new ArrayList<>();
     }
 
     @Override

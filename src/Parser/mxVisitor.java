@@ -17,11 +17,11 @@ public interface mxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitProgram(mxParser.ProgramContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link mxParser#mainFn}.
+	 * Visit a parse tree produced by {@link mxParser#def}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitMainFn(mxParser.MainFnContext ctx);
+	T visitDef(mxParser.DefContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link mxParser#varDef}.
 	 * @param ctx the parse tree
@@ -34,6 +34,12 @@ public interface mxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitVarTerm(mxParser.VarTermContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link mxParser#cdef}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCdef(mxParser.CdefContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link mxParser#classDef}.
 	 * @param ctx the parse tree

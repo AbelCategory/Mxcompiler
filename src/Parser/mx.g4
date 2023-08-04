@@ -1,13 +1,13 @@
 grammar mx;
 
-program: (classDef | funcDef | (varDef ';'))* mainFn;
-
-mainFn: 'int' 'main' '(' ')' suite EOF;
+program: def* EOF;
+def: classDef | funcDef | (varDef ';');
 
 varDef: typename varTerm (',' varTerm)*;
 varTerm: ID ('=' expr)?;
 
-classDef: Class ID '{' (varDef ';'| funcDef | constructStat)* '}' ';';
+cdef: varDef ';'| funcDef | constructStat;
+classDef: Class ID '{' cdef* '}' ';';
 funcDef: typename ID '(' para? ')' suite;
 
 suite: '{' stat* '}';

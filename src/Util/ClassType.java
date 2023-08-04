@@ -22,4 +22,7 @@ public class ClassType extends Type {
     }
 
     @Override public boolean isClass() {return true;}
+
+    @Override
+    public String getTypename() {return className;}
 }

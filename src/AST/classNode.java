@@ -6,6 +6,7 @@ import Util.position;
 public class classNode extends ASTNode {
     public ArrayList<varDefNode> varDef;
     public ArrayList<funcNode> funcDef;
+    public ArrayList<ASTNode> cdef;
     public funcNode constructor;
     public String name;
 
@@ -17,6 +18,7 @@ public class classNode extends ASTNode {
         varDef = new ArrayList<>();
         funcDef = new ArrayList<>();
         constructor = null;
+        cdef = new ArrayList<>();
     }
 
     @Override
