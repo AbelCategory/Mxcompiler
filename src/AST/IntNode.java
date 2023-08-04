@@ -9,9 +9,4 @@ public class IntNode extends constExprNode {
         super(p, t);
         this.value = value;
     }
-
-    @Override
-    public void accept(ASTVistor vis) {
-
-    }
 }

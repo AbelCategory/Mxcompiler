@@ -10,6 +10,6 @@ public class ThisNode extends constExprNode {
 
     @Override
     public void accept(ASTVistor vis) {
-
+        vis.visit(this);
     }
 }

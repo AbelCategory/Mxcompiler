@@ -16,4 +16,5 @@ public abstract class Type
     public boolean isNull() {return false;}
 
     public boolean isArray() {return false;}
+    public boolean isClass() {return false;}
 }

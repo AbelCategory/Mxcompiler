@@ -20,4 +20,6 @@ public class ClassType extends Type {
     public String toString() {
         return className;
     }
+
+    @Override public boolean isClass() {return true;}
 }

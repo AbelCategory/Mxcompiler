@@ -7,11 +7,12 @@ public class SemanticCheck implements ASTVistor {
     public globalScope gScope;
     private Scope currentScope;
     private Type currentType = null;
-    Type booltype, inttype;
+    Type booltype, inttype, stringtype;
     public SemanticCheck(globalScope gScope) {
         this.gScope = gScope;
         booltype = gScope.getType_("bool", null);
         inttype = gScope.getType_("int", null);
+        stringtype = gScope.getType_("string", null);
 //        nullType = gScope.getType_("null", null);
     }
 
@@ -25,6 +26,8 @@ public class SemanticCheck implements ASTVistor {
 
     @Override public void visit(funcNode cur) {
         currentScope = new Scope(currentScope);
+        currentScope.isFunc = true;
+        currentScope.funcReturnType = gScope.getType(cur.tp, cur.pos);
         cur.pa.forEach(v -> currentScope.newVariable(v.name, gScope.getType(v.type, v.p), v.p));
         cur.body.accept(this);
         currentScope = currentScope.getParentScope();
@@ -32,6 +35,8 @@ public class SemanticCheck implements ASTVistor {
 
     @Override public void visit(classNode cur) {
         currentScope = new Scope(currentScope);
+        currentScope.isClass = true;
+        currentScope.thisClassType = gScope.getType_(cur.name, cur.pos);
         if(cur.constructor != null){
             cur.constructor.accept(this);
         }
@@ -49,9 +54,11 @@ public class SemanticCheck implements ASTVistor {
         if(gScope.funcDefined(cur.name)) {
             throw new semanticError("variable name and function name coincide", cur.pos);
         }
-        cur.body.accept(this);
-        if(!cur.body.type.equal(currentType)) {
-            throw new semanticError("Type not match the defintion of " + cur.name, cur.pos);
+        if(cur.body != null) {
+            cur.body.accept(this);
+        }
+        if(cur.body != null && !cur.body.type.equal(currentType)) {
+            throw new semanticError("Type not match the definition of " + cur.name, cur.pos);
         }
         currentScope.newVariable(cur.name, currentType, cur.pos);
     }
@@ -153,8 +160,13 @@ public class SemanticCheck implements ASTVistor {
         cur.lhs.accept(this);
         cur.rhs.accept(this);
         if((cur.op == BinaryOperator.EQ || cur.op == BinaryOperator.NEQ) && (cur.lhs.type.isNull() || cur.rhs.type.isNull())) {
-            cur.type = booltype;
-            return;
+            if(cur.lhs.type.isNull() && (cur.rhs.type.isNull() || cur.rhs.type.isArray() && cur.rhs.arrayOk || cur.rhs.type.isClass())) {
+                return;
+            }
+            if(cur.rhs.type.isNull() && (cur.lhs.type.isNull() || cur.lhs.type.isArray() && cur.lhs.arrayOk || cur.lhs.type.isClass())) {
+                return;
+            }
+            throw new semanticError("wrong compare null", cur.pos);
         }
         if(!cur.lhs.type.equal(cur.rhs.type)) {
             throw new semanticError("type not matched", cur.pos);
@@ -169,6 +181,12 @@ public class SemanticCheck implements ASTVistor {
             switch (cur.op) {
                 case EQ, NEQ, LAND, LOR -> cur.type = booltype;
                 default -> throw new semanticError("arithmetic operator on two bool", cur.pos);
+            }
+        } else if(cur.lhs.type.isString()) {
+            switch (cur.op) {
+                case ADD -> cur.type = stringtype;
+                case EQ, NEQ, LE, GR, LEQ, GEQ -> cur.type = booltype;
+                default -> throw new semanticError("wrong operator on two string", cur.pos);
             }
         } else {
             throw new semanticError("wrong binary expression type", cur.pos);
@@ -194,10 +212,24 @@ public class SemanticCheck implements ASTVistor {
 
     @Override public void visit(postUpdateExpNode cur) {
         cur.e.accept(this);
+        if(!cur.e.isAssign()) {
+            throw new semanticError("update operator on not assignable expression", cur.pos);
+        }
+        if(!cur.e.type.isInt()) {
+            throw new semanticError("update operator on not int", cur.pos);
+        }
+        cur.type = inttype;
     }
 
     @Override public void visit(preUpdateExpNode cur) {
         cur.e.accept(this);
+        if(!cur.e.isAssign()) {
+            throw new semanticError("update operator on not assignable expression", cur.pos);
+        }
+        if(!cur.e.type.isInt()) {
+            throw new semanticError("update operator on not int", cur.pos);
+        }
+        cur.type = inttype;
     }
 
     @Override public void visit(condExpNode cur) {
@@ -216,11 +248,15 @@ public class SemanticCheck implements ASTVistor {
     @Override public void visit(assignNode cur) {
         cur.lhs.accept(this);
         cur.rhs.accept(this);
-        if(!cur.lhs.type.equal(cur.rhs.type)) {
-            throw new semanticError("type not match on two side of equation", cur.pos);
-        }
         if(!cur.lhs.isAssign()) {
             throw new semanticError("left hand side is not assignable", cur.pos);
+        }
+        if(cur.rhs.type.isNull()) {
+            if(!cur.lhs.type.isArray() && !cur.rhs.type.isClass()) {
+                throw new semanticError("assign a null to a basic type", cur.pos);
+            }
+        } else if(!cur.lhs.type.equal(cur.rhs.type)) {
+            throw new semanticError("type not match on two side of equation", cur.pos);
         }
         cur.type = cur.lhs.type;
     }
@@ -269,10 +305,13 @@ public class SemanticCheck implements ASTVistor {
 
     @Override public void visit(ArrayExpNode cur) {
         cur.array.accept(this);
-        if(!cur.array.type.isArray()) {
+        if(!cur.array.type.isArray() || !cur.array.isAssign() && !cur.array.arrayOk) {
             throw new semanticError("try to visit index of not array", cur.pos);
         }
         cur.index.accept(this);
+        if(!cur.index.type.isInt()) {
+            throw new semanticError("index not an int", cur.pos);
+        }
         cur.type = ((ArrayType) cur.array.type).index();
     }
 
@@ -283,7 +322,19 @@ public class SemanticCheck implements ASTVistor {
     @Override public void visit(NewExpNode cur) {
         if(cur.tp.dim != 0) {
             cur.tp.exprs.forEach(e -> e.accept(this));
+            cur.tp.exprs.forEach(e -> {
+                if(!e.type.isInt()) throw new semanticError("new array index not int", e.pos);
+            });
         }
         cur.type = gScope.getType(cur.typ, cur.pos);
+    }
+
+    @Override public void visit(constExprNode cur) {}
+
+    @Override public void visit(ThisNode cur) {
+        if(!currentScope.isInClass()) {
+            throw new semanticError("this pointer not in a class", cur.pos);
+        }
+        cur.type = currentScope.getThisClassType();
     }
 }

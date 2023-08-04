@@ -59,6 +59,9 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
         gScope.newFunc("string::substring", Mxsubstring, null);
         gScope.newFunc("string::parseInt", MxparseInt, null);
         gScope.newFunc("string::ord", Mxord, null);
+
+        FuncType MxSize = new FuncType("size", inttype);
+        gScope.newFunc("Array::size", MxSize, null);
     }
     @Override public ASTNode visitProgram(mxParser.ProgramContext ctx) {
         rtNode rt = new rtNode(new position(ctx), (funcNode) visitMainFn(ctx.mainFn()));
@@ -89,15 +92,17 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
         BlockStatNode node = (BlockStatNode) visitSuite(ctx.suite());
         typeNode tt = (typeNode) visitTypename(ctx.typename());
         funcNode rt = new funcNode(ctx.ID().getText(), new position(ctx), tt, node);
-        List<mxParser.TypenameContext> type = ctx.para().typename();
-        List<TerminalNode> name = ctx.para().ID();
-        ListIterator<mxParser.TypenameContext> i = type.listIterator();
-        ListIterator<TerminalNode> j = name.listIterator();
-        while(i.hasNext() && j.hasNext()){
-            TerminalNode x = j.next();
-            mxParser.TypenameContext y = i.next();
-            typeNode tp = (typeNode) visitTypename(y);
-            rt.pa.add(new funcParameter(x.getText(), new position(y), tp));
+        if(ctx.para() != null) {
+            List<mxParser.TypenameContext> type = ctx.para().typename();
+            List<TerminalNode> name = ctx.para().ID();
+            ListIterator<mxParser.TypenameContext> i = type.listIterator();
+            ListIterator<TerminalNode> j = name.listIterator();
+            while(i.hasNext() && j.hasNext()) {
+                TerminalNode x = j.next();
+                mxParser.TypenameContext y = i.next();
+                typeNode tp = (typeNode) visitTypename(y);
+                rt.pa.add(new funcParameter(x.getText(), new position(y), tp));
+            }
         }
         return rt;
     }
@@ -214,11 +219,14 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitEmpty_statement(mxParser.Empty_statementContext ctx) {
-        return null;
+        BlockStatNode cur = new BlockStatNode(new position(ctx));
+        return cur;
     }
 
     @Override public ASTNode visitParent_expression(mxParser.Parent_expressionContext ctx) {
-        return visit(ctx.expr());
+        exprNode cur = (exprNode) visit(ctx.expr());
+        cur.arrayOk = true;
+        return cur;
     }
 
     @Override public ASTNode visitBinary(mxParser.BinaryContext ctx) {
@@ -345,7 +353,7 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitNewClassArray(mxParser.NewClassArrayContext ctx) {
-        String type = ctx.getText();
+        String type = ctx.ID().getText();
         newTypeNode cur = new newTypeNode(type, ctx.exprbracket().size() + ctx.bracket().size());
         for(mxParser.ExprbracketContext exp : ctx.exprbracket()) {
             exprNode e = (exprNode) visit(exp.expr());
@@ -355,7 +363,7 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitPrimitiveArray(mxParser.PrimitiveArrayContext ctx) {
-        String type = ctx.getText();
+        String type = ctx.primitivetype().getText();
         if(type.equals("void")) {
             throw new semanticError("cannot new a void array", new position(ctx));
         }
@@ -369,7 +377,7 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
 
     @Override public ASTNode visitFunctionCall(mxParser.FunctionCallContext ctx) {
         funCallNode cur = new funCallNode(ctx.ID().getText(), new position(ctx), null);
-        if(!ctx.argu().isEmpty()) {
+        if(ctx.argu() != null) {
             List<mxParser.ExprContext> A = ctx.argu().expr();
             for(mxParser.ExprContext a : A)
                 cur.arguments.add((exprNode) visit(a));
@@ -407,15 +415,15 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitMemberExp(mxParser.MemberExpContext ctx) {
-        exprNode obj = (exprNode) visit(ctx);
+        exprNode obj = (exprNode) visit(ctx.expr());
         return new memberVarNode(obj, ctx.varName.getText(), new position(ctx), null);
     }
 
     @Override public ASTNode visitMemberFun(mxParser.MemberFunContext ctx) {
-        exprNode obj = (exprNode) visit(ctx);
+        exprNode obj = (exprNode) visit(ctx.expr());
         String id = ctx.funName.getText();
         memberFuncNode cur = new memberFuncNode(obj, id, new position(ctx), null);
-        if(!ctx.argu().isEmpty()) {
+        if(ctx.argu() != null) {
             List<mxParser.ExprContext> A = ctx.argu().expr();
             for(mxParser.ExprContext a : A) {
                 cur.arguments.add((exprNode) visit(a));

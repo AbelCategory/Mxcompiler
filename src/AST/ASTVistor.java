@@ -30,4 +30,8 @@ public interface ASTVistor {
     void visit(varExpNode x);
     void visit(NewExpNode x);
 
+    void visit(constExprNode x);
+
+    void visit(ThisNode x);
+
 }

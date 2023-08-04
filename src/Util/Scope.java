@@ -7,7 +7,7 @@ public class Scope {
     private HashMap<String, Type> members;
     private Scope parentScope;
 
-    public Type funcReturnType;
+    public Type funcReturnType, thisClassType;
     public boolean isClass = false;
     public boolean isLoop = false, isFunc = false;
     public Scope(Scope parent) {
@@ -18,6 +18,7 @@ public class Scope {
             isFunc = parent.isFunc;
             funcReturnType = parent.funcReturnType;
             isClass = parent.isClass;
+            thisClassType = parent.thisClassType;
         }
     }
 
@@ -54,6 +55,8 @@ public class Scope {
     public Type getFuncReturnType() {
         return funcReturnType;
     }
+
+    public Type getThisClassType() {return thisClassType;}
 
     public boolean isInLoop() {return isLoop;}
 

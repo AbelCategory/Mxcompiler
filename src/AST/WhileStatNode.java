@@ -4,7 +4,6 @@ import Util.position;
 
 public class WhileStatNode extends LoopStatNode {
     public exprNode cond;
-    public StatNode body;
 
     public WhileStatNode(exprNode cond, StatNode body, position p) {
         super(p, body);

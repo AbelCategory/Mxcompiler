@@ -12,4 +12,7 @@ public class postUpdateExpNode extends updateExpNode {
     public void accept(ASTVistor vis) {
         vis.visit(this);
     }
+
+    @Override
+    public boolean isAssign() {return true;}
 }

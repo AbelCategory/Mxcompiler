@@ -7,9 +7,4 @@ public class NullNode extends constExprNode{
     public NullNode(position p, nulltype type) {
         super(p, type);
     }
-
-    @Override
-    public void accept(ASTVistor vis) {
-
-    }
 }

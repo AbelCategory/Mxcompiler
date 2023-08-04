@@ -2,7 +2,7 @@ grammar mx;
 
 program: (classDef | funcDef | (varDef ';'))* mainFn;
 
-mainFn: 'int' 'main()' suite EOF;
+mainFn: 'int' 'main' '(' ')' suite EOF;
 
 varDef: typename varTerm (',' varTerm)*;
 varTerm: ID ('=' expr)?;
@@ -90,6 +90,10 @@ Continue: 'continue';
 Return: 'return';
 Class: 'class';
 New: 'new';
+True: 'true';
+False: 'false';
+Null: 'null';
+This: 'this';
 
 fragment Digit: [0-9];
 fragment PosDigit: [1-9];
@@ -101,12 +105,6 @@ ID: Letter (Digit | Letter | '_')*;
 Num: PosDigit Digit*
    | '0';
 Str: '"' StrChar* '"';
-True: 'true';
-False: 'false';
-Null: 'null';
-This: 'this';
-WhiteSpace: [ \t\u000B\u000C\u00A0] -> skip;
-NewLine: [\r\n\u2028\u2029] -> skip;
 
 LineCom: '//' ~[\r\n\u2028\u2029]* -> skip;
 BlockCom: '/*' .*? '*/' -> skip;
@@ -154,3 +152,6 @@ Colon: ':';
 Semi: ';';
 Comma: ',';
 Quo: '"';
+
+WhiteSpace: (' ' | '\t' | '\u000B' | 'u000C' | '\u00A0') -> skip;
+NewLine: ('\r' | '\n' | '\u2028' | '\u2029') -> skip;
