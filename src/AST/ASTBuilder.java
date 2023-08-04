@@ -403,6 +403,10 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
         return new NewExpNode(nw, new position(ctx));
     }
 
+    @Override public ASTNode visitNew_expr(mxParser.New_exprContext ctx) {
+        return visit(ctx.newTypename());
+    }
+
     @Override public ASTNode visitNewClass(mxParser.NewClassContext ctx) {
         String type = ctx.getText();
         return new newTypeNode(type, 0);
