@@ -380,11 +380,13 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
         if(ctx.Str() != null) {
             String str =  ctx.Str().getText();
             int len = str.length();
-            String value = str.substring(1, len - 2);
+            String value;
+            if(len > 2) value = str.substring(1, len - 2);
+            else value = "";
             return new StringNode(value, new position(ctx), stringtype);
 
         } else if(ctx.Num() != null) {
-            return new IntNode(Integer.parseInt(ctx.Num().getText()), new position(ctx), inttype);
+            return new IntNode(Long.parseLong(ctx.Num().getText()), new position(ctx), inttype);
         } else if(ctx.True() != null) {
             return new BoolNode(true, new position(ctx), booltype);
         } else if(ctx.False() != null) {

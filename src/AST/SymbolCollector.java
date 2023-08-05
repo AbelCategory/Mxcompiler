@@ -25,6 +25,9 @@ public class SymbolCollector implements ASTVistor {
     }
 
     private void visitFunMem(classNode c, funcNode f) {
+        if(f.name.equals(c.name)) {
+            throw new semanticError("Constructor type error", f.pos);
+        }
         String name = c.name + "::" + f.name;
 //        gScope.newFunc(c.name + "::" + f.name, );
         FuncType func = new FuncType(f.name, gScope.getType(f.tp, f.pos));

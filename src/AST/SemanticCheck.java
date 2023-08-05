@@ -35,6 +35,7 @@ public class SemanticCheck implements ASTVistor {
         currentScope.isFunc = true;
         currentScope.funcReturnType = gScope.getType(cur.tp, cur.pos);
         cur.pa.forEach(v -> currentScope.newVariable(v.name, gScope.getType(v.type, v.p), v.p));
+        cur.body.isnw = true;
         cur.body.accept(this);
         currentScope = currentScope.getParentScope();
     }
@@ -79,9 +80,9 @@ public class SemanticCheck implements ASTVistor {
     }
 
     @Override public void visit(BlockStatNode cur) {
-        currentScope = new Scope(currentScope);
+        if(!cur.isnw) currentScope = new Scope(currentScope);
         cur.stats.forEach(st -> st.accept(this));
-        currentScope = currentScope.getParentScope();
+        if(!cur.isnw) currentScope = currentScope.getParentScope();
     }
 
     @Override public void visit(IfStatNode cur) {
@@ -89,9 +90,15 @@ public class SemanticCheck implements ASTVistor {
         if(!cur.cond.type.isBool()) {
             throw new semanticError("if condition not a bool", cur.cond.pos);
         }
+        currentScope = new Scope(currentScope);
+        cur.thenStat.isnw = true;
         cur.thenStat.accept(this);
+        currentScope = currentScope.getParentScope();
         if(cur.elseStat != null){
+            currentScope = new Scope(currentScope);
+            cur.elseStat.isnw = true;
             cur.elseStat.accept(this);
+            currentScope = currentScope.getParentScope();
         }
     }
 
@@ -110,6 +117,7 @@ public class SemanticCheck implements ASTVistor {
         if(cur.step != null) {
             cur.step.accept(this);
         }
+        cur.body.isnw = true;
         cur.body.accept(this);
         currentScope = currentScope.getParentScope();
     }
@@ -129,6 +137,7 @@ public class SemanticCheck implements ASTVistor {
         if(cur.step != null) {
             cur.step.accept(this);
         }
+        cur.body.isnw = true;
         cur.body.accept(this);
         currentScope = currentScope.getParentScope();
     }
@@ -140,6 +149,7 @@ public class SemanticCheck implements ASTVistor {
         if(!cur.cond.type.isBool()) {
             throw new semanticError("while condition not a bool", cur.cond.pos);
         }
+        cur.body.isnw = true;
         cur.body.accept(this);
         currentScope = currentScope.getParentScope();
     }
@@ -166,8 +176,14 @@ public class SemanticCheck implements ASTVistor {
             }
         } else {
             cur.expr.accept(this);
-            if (!cur.expr.type.equal(currentScope.getFuncReturnType())) {
-                throw new semanticError("return type not matched", cur.pos);
+            if(cur.expr.type.isNull()) {
+                if(!currentScope.getFuncReturnType().isClass() && !currentScope.getFuncReturnType().isArray()) {
+                    throw new semanticError("cannot return null", cur.pos);
+                }
+            } else{
+                if (!cur.expr.type.equal(currentScope.getFuncReturnType())) {
+                    throw new semanticError("return type not matched", cur.pos);
+                }
             }
         }
     }
@@ -181,11 +197,11 @@ public class SemanticCheck implements ASTVistor {
         cur.lhs.accept(this);
         cur.rhs.accept(this);
         if((cur.op == BinaryOperator.EQ || cur.op == BinaryOperator.NEQ) && (cur.lhs.type.isNull() || cur.rhs.type.isNull())) {
-            if(cur.lhs.type.isNull() && (cur.rhs.type.isNull() || cur.rhs.type.isArray() && cur.rhs.arrayOk || cur.rhs.type.isClass())) {
+            if(cur.lhs.type.isNull() && (cur.rhs.type.isNull() || cur.rhs.type.isArray() && (cur.rhs.arrayOk ||  cur.rhs.isAssign()) || cur.rhs.type.isClass())) {
                 cur.type = booltype;
                 return;
             }
-            if(cur.rhs.type.isNull() && (cur.lhs.type.isNull() || cur.lhs.type.isArray() && cur.lhs.arrayOk || cur.lhs.type.isClass())) {
+            if(cur.rhs.type.isNull() && (cur.lhs.type.isNull() || cur.lhs.type.isArray() && (cur.lhs.arrayOk || cur.lhs.isAssign()) || cur.lhs.type.isClass())) {
                 cur.type = booltype;
                 return;
             }
@@ -286,10 +302,10 @@ public class SemanticCheck implements ASTVistor {
 
     @Override public void visit(funCallNode cur) {
         FuncType fun;
-        if(gScope.funcDefined(cur.funcName)) {
-            fun = gScope.getFunc(cur.funcName, cur.pos);
-        } else if(currentScope.isInClass() && gScope.funcDefined(classMember(currentScope.getThisClassType(), cur.funcName))) {
+        if(currentScope.isInClass() && gScope.funcDefined(classMember(currentScope.getThisClassType(), cur.funcName))) {
             fun = gScope.getFunc(classMember(currentScope.getThisClassType(), cur.funcName), cur.pos);
+        } else if(gScope.funcDefined(cur.funcName)) {
+            fun = gScope.getFunc(cur.funcName, cur.pos);
         } else {
             throw new semanticError("no such function", cur.pos);
         }

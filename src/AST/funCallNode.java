@@ -13,6 +13,7 @@ public class funCallNode extends exprNode{
         funcName = funcID;
 //        arguments.addAll(a);
         arguments = new ArrayList<>();
+        arrayOk = true;
     }
 
     @Override

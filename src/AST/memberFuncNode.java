@@ -15,6 +15,7 @@ public class memberFuncNode extends exprNode {
         funcName = ID;
 //        arguments.addAll(arg);
         arguments = new ArrayList<>();
+        arrayOk = true;
     }
 
     @Override
@@ -24,6 +25,6 @@ public class memberFuncNode extends exprNode {
 
 //    @Override
 //    public boolean isAssign() {
-//        return obj.isAssign() && (type.isClass() || type.isArray());
+//        return type.isClass() || type.isArray();
 //    }
 }

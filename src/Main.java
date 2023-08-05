@@ -62,7 +62,7 @@ public class Main {
         }
     }
     public static void main(String[] args) throws Exception {
-        compile("testcases/sema/class-package/class-9.mx");
+        compile("testcases/sema/misc-package/misc-6.mx");
         File justList = new File("testcases/sema/judgelist.txt");
         FileReader rd = new FileReader(justList);
         BufferedReader br = new BufferedReader(rd);
