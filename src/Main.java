@@ -1,5 +1,4 @@
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 
 import AST.ASTBuilder;
 import AST.SemanticCheck;
@@ -17,9 +16,23 @@ import org.antlr.v4.runtime.tree.ParseTree;
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
 public class Main {
-    public static void main(String[] args) throws Exception {
-        String name = "1.mx";
+
+    public static boolean checkOk(String name) throws IOException{
+        File file = new File(name);
+        FileReader rd = new FileReader(file);
+        BufferedReader br = new BufferedReader(rd);
+        String line;
+        while((line = br.readLine()) != null && !line.contains("Verdict"));
+        if(line != null){
+            return line.contains("Success");
+        }
+        return false;
+    }
+
+
+    public static void compile(String name) throws Exception{
         InputStream input = new FileInputStream(name);
+        boolean ok = true, realOk = checkOk(name);
         try{
             globalScope gScope = new globalScope(null);
 
@@ -40,7 +53,24 @@ public class Main {
 
         } catch (error er) {
             System.err.println(er.toString());
+            ok = false;
+//            throw new RuntimeException();
+        }
+        if(ok != realOk) {
             throw new RuntimeException();
+//            while(true);
+        }
+    }
+    public static void main(String[] args) throws Exception {
+        compile("testcases/sema/class-package/class-9.mx");
+        File justList = new File("testcases/sema/judgelist.txt");
+        FileReader rd = new FileReader(justList);
+        BufferedReader br = new BufferedReader(rd);
+        String name;
+        while((name = br.readLine()) != null) {
+            String fileName = "testcases/sema" + name.substring(1);
+            System.out.println(fileName);
+            compile(fileName);
         }
     }
 }

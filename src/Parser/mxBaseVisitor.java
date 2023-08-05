@@ -319,14 +319,14 @@ public class mxBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements mxV
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNewClass(mxParser.NewClassContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNewClassArray(mxParser.NewClassArrayContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNewClassArray(mxParser.NewClassArrayContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNewClass(mxParser.NewClassContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

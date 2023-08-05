@@ -12,7 +12,7 @@ class A
 	{
 	}
 	int e;
-	
+
 	void c(int b)
 	{
 		this.b(b);

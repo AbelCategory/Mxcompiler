@@ -72,8 +72,8 @@ exprbracket: '[' expr ']';
 
 new_expr: 'new' newTypename ('(' ')')?;
 
-newTypename: ID                                   #newClass
-           | ID exprbracket+ bracket*             #newClassArray
+newTypename: ID exprbracket+ bracket*             #newClassArray
+           | ID                                   #newClass
            | primitivetype exprbracket+ bracket*  #primitiveArray
            ;
 

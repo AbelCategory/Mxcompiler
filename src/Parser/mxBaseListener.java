@@ -533,18 +533,6 @@ public class mxBaseListener implements mxListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNewClass(mxParser.NewClassContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNewClass(mxParser.NewClassContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterNewClassArray(mxParser.NewClassArrayContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -552,6 +540,18 @@ public class mxBaseListener implements mxListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNewClassArray(mxParser.NewClassArrayContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNewClass(mxParser.NewClassContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNewClass(mxParser.NewClassContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

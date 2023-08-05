@@ -19,4 +19,7 @@ public class funCallNode extends exprNode{
     public void accept(ASTVistor vis) {
         vis.visit(this);
     }
+
+//    @Override
+//    public boolean isAssign() {return type.isArray() || type.isClass();}
 }

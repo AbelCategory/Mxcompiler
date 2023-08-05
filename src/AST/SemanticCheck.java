@@ -8,6 +8,11 @@ public class SemanticCheck implements ASTVistor {
     private Scope currentScope;
     private Type currentType = null;
     Type booltype, inttype, stringtype;
+
+    private String classMember(Type a, String b) {
+        return a.getTypename() + "::" + b;
+    }
+
     public SemanticCheck(globalScope gScope) {
         this.gScope = gScope;
         booltype = gScope.getType_("bool", null);
@@ -177,9 +182,11 @@ public class SemanticCheck implements ASTVistor {
         cur.rhs.accept(this);
         if((cur.op == BinaryOperator.EQ || cur.op == BinaryOperator.NEQ) && (cur.lhs.type.isNull() || cur.rhs.type.isNull())) {
             if(cur.lhs.type.isNull() && (cur.rhs.type.isNull() || cur.rhs.type.isArray() && cur.rhs.arrayOk || cur.rhs.type.isClass())) {
+                cur.type = booltype;
                 return;
             }
             if(cur.rhs.type.isNull() && (cur.lhs.type.isNull() || cur.lhs.type.isArray() && cur.lhs.arrayOk || cur.lhs.type.isClass())) {
+                cur.type = booltype;
                 return;
             }
             throw new semanticError("wrong compare null", cur.pos);
@@ -268,7 +275,7 @@ public class SemanticCheck implements ASTVistor {
             throw new semanticError("left hand side is not assignable", cur.pos);
         }
         if(cur.rhs.type.isNull()) {
-            if(!cur.lhs.type.isArray() && !cur.rhs.type.isClass()) {
+            if(!cur.lhs.type.isArray() && !cur.lhs.type.isClass()) {
                 throw new semanticError("assign a null to a basic type", cur.pos);
             }
         } else if(!cur.lhs.type.equal(cur.rhs.type)) {
@@ -278,7 +285,14 @@ public class SemanticCheck implements ASTVistor {
     }
 
     @Override public void visit(funCallNode cur) {
-        FuncType fun = gScope.getFunc(cur.funcName, cur.pos);
+        FuncType fun;
+        if(gScope.funcDefined(cur.funcName)) {
+            fun = gScope.getFunc(cur.funcName, cur.pos);
+        } else if(currentScope.isInClass() && gScope.funcDefined(classMember(currentScope.getThisClassType(), cur.funcName))) {
+            fun = gScope.getFunc(classMember(currentScope.getThisClassType(), cur.funcName), cur.pos);
+        } else {
+            throw new semanticError("no such function", cur.pos);
+        }
         if(fun.paraType.size() != cur.arguments.size()) {
             throw new semanticError("arguments number not matched", cur.pos);
         }
@@ -332,7 +346,13 @@ public class SemanticCheck implements ASTVistor {
     }
 
     @Override public void visit(varExpNode cur) {
-        cur.type = currentScope.getVarType(cur.name, cur.pos);
+        if(currentScope.variableDefined(cur.name)) {
+            cur.type = currentScope.getVarType(cur.name, cur.pos);
+        } else if(currentScope.isInClass() && gScope.variableDefined(classMember(currentScope.getThisClassType(), cur.name))){
+            cur.type = gScope.getVarType(classMember(currentScope.getThisClassType(), cur.name), cur.pos);
+        } else {
+            throw new semanticError("no such variable", cur.pos);
+        }
     }
 
     @Override public void visit(NewExpNode cur) {

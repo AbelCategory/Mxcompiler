@@ -21,4 +21,9 @@ public class memberFuncNode extends exprNode {
     public void accept(ASTVistor vis) {
         vis.visit(this);
     }
+
+//    @Override
+//    public boolean isAssign() {
+//        return obj.isAssign() && (type.isClass() || type.isArray());
+//    }
 }

@@ -295,19 +295,19 @@ public interface mxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitNew_expr(mxParser.New_exprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code newClass}
-	 * labeled alternative in {@link mxParser#newTypename}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNewClass(mxParser.NewClassContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code newClassArray}
 	 * labeled alternative in {@link mxParser#newTypename}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNewClassArray(mxParser.NewClassArrayContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code newClass}
+	 * labeled alternative in {@link mxParser#newTypename}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNewClass(mxParser.NewClassContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code primitiveArray}
 	 * labeled alternative in {@link mxParser#newTypename}.

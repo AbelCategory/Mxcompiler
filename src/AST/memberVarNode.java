@@ -18,7 +18,8 @@ public class memberVarNode extends exprNode {
     }
 
     @Override public boolean isAssign() {
-        if(obj.getClass().equals(ThisNode.class)) return true;
-        return obj.isAssign();
+//        if(obj.getClass().equals(ThisNode.class)) return true;
+//        return obj.isAssign();
+        return true;
     }
 }
