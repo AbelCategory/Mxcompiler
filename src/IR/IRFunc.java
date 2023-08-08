@@ -13,5 +13,22 @@ public class IRFunc extends IRNode {
         retype = type;
     }
 
-    @Override
+    @Override public String toString() {
+        StringBuilder cur = new StringBuilder("define " + retype.toString());
+        cur.append("@ ").append(name).append("(");
+        if(!para.isEmpty()) {
+            cur.append(para.get(0).toString());
+            int n = para.size();
+            for(int i = 1; i < n; ++i) {
+                cur.append(",").append(para.get(i).toString());
+            }
+        }
+        if(!suite.isEmpty()) {
+            cur.append("{\n");
+            for(block blk : suite)
+                cur.append(blk.toString());
+            cur.append("}");
+        }
+        return cur.toString();
+    }
 }

@@ -8,4 +8,6 @@ public abstract class entity extends IRNode {
 
     @Override
     public String toString() {return type.toString();}
+
+    public abstract String get_name();
 }

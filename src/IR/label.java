@@ -9,4 +9,7 @@ public class label extends entity {
 
     @Override
     public String toString() {return super.toString() + " %" + name;}
+
+    @Override
+    public String get_name() {return name;}
 }

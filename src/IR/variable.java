@@ -6,4 +6,7 @@ public abstract class variable extends entity {
         super(t);
         this.name = name;
     }
+
+    @Override
+    public String toString() {return type.toString() + " " + get_name();}
 }
