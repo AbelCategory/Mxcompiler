@@ -2,7 +2,7 @@ package IR;
 
 public class localVar extends variable {
     public localVar(String name, IRType t) {
-        super(t, id);
+        super(t, name);
     }
 
     @Override
