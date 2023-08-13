@@ -6,7 +6,7 @@ import Util.Type;
 public class unaryExpNode extends exprNode {
     public exprNode e;
 
-    UnaryOperator op;
+    public UnaryOperator op;
 
     unaryExpNode(exprNode exp, UnaryOperator opt, position p, Type type) {
         super(p, type);

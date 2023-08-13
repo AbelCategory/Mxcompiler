@@ -6,5 +6,5 @@ public class globalVar extends variable {
     }
 
     @Override
-    public String get_name() {return "@ " + name;}
+    public String get_name() {return "@" + name;}
 }

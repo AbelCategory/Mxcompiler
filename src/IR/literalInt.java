@@ -1,13 +1,13 @@
 package IR;
 
 public class literalInt extends literal{
-    public int val;
-    public literalInt(I_Type t, int val) {
+    public long val;
+    public literalInt(I_Type t, long val) {
         super(t);
         this.val = val;
     }
 
     @Override
-    public String get_name() {return Integer.toString(val);}
+    public String get_name() {return Long.toString(val);}
 
 }
