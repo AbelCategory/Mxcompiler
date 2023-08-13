@@ -30,9 +30,11 @@ public class Main {
     }
 
 
-    public static void compile(String name) throws Exception{
-        InputStream input = new FileInputStream(name);
-        boolean ok = true, realOk = checkOk(name);
+    public static void compile(InputStream input) throws Exception{
+//        InputStream input = new FileInputStream(name);
+//        InputStream input = System.in;
+        System.out.println(">>>");
+//        boolean ok = true, realOk = checkOk(name);
         try{
             globalScope gScope = new globalScope(null);
 
@@ -53,24 +55,27 @@ public class Main {
 
         } catch (error er) {
             System.err.println(er.toString());
-            ok = false;
+//            ok = false;
 //            throw new RuntimeException();
         }
-        if(ok != realOk) {
-            throw new RuntimeException();
-//            while(true);
-        }
+//        if(ok != realOk) {
+//            throw new RuntimeException();
+////            while(true);
+//        }
     }
     public static void main(String[] args) throws Exception {
-        compile("testcases/sema/misc-package/misc-6.mx");
-        File justList = new File("testcases/sema/judgelist.txt");
-        FileReader rd = new FileReader(justList);
-        BufferedReader br = new BufferedReader(rd);
-        String name;
-        while((name = br.readLine()) != null) {
-            String fileName = "testcases/sema" + name.substring(1);
-            System.out.println(fileName);
-            compile(fileName);
-        }
+//        InputStream input = new FileInputStream(name);
+        InputStream input = System.in;
+        compile(input);
+//        compile("testcases/sema/misc-package/misc-6.mx");
+//        File justList = new File("testcases/sema/judgelist.txt");
+//        FileReader rd = new FileReader(justList);
+//        BufferedReader br = new BufferedReader(rd);
+//        String name;
+//        while((name = br.readLine()) != null) {
+//            String fileName = "testcases/sema" + name.substring(1);
+//            System.out.println(fileName);
+//            compile(fileName);
+//        }
     }
 }

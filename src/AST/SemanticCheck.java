@@ -278,6 +278,20 @@ public class SemanticCheck implements ASTVistor {
         }
         cur.exp1.accept(this);
         cur.exp2.accept(this);
+        if(cur.exp1.type.isNull() && !cur.exp2.type.isNull()) {
+            if(cur.exp2.type.isArray() || cur.exp2.type.isClass()) {
+                cur.type = cur.exp2.type;
+                return;
+            }
+            throw new semanticError("expression type not match", cur.pos);
+        }
+        if(cur.exp2.type.isNull() && !cur.exp1.type.isNull()) {
+            if(cur.exp1.type.isArray() || cur.exp1.type.isClass()) {
+                cur.type = cur.exp1.type;
+                return;
+            }
+            throw new semanticError("expression type not match", cur.pos);
+        }
         if(!cur.exp1.type.equal(cur.exp2.type)) {
             throw new semanticError("expression type not match", cur.pos);
         }
