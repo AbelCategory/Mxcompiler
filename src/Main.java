@@ -56,7 +56,7 @@ public class Main {
         } catch (error er) {
             System.err.println(er.toString());
 //            ok = false;
-//            throw new RuntimeException();
+            throw new RuntimeException();
         }
 //        if(ok != realOk) {
 //            throw new RuntimeException();
