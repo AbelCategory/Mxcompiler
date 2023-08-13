@@ -14,7 +14,7 @@ public class call extends statment {
         name = fn.name;
         para = new ArrayList<>();
     }
-
+    //
     @Override public String toString() {
         StringBuilder ret = new StringBuilder((rd == null ? "" : rd.get_name() + " = ") + "call " + retType.toString() + " @" + name + "(");
         int n = para.size();
