@@ -10,6 +10,10 @@ public class block extends IRNode {
         L = new label(lb, new lableType());
     }
 
+    public void addInst(statment ins) {
+        stats.add(ins);
+    }
+
     @Override public String toString() {
         return null;
     }

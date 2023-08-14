@@ -1,4 +1,5 @@
 package IR;
 
-public class IRPrinter {
+public class IRPrinter implements IRPass {
+
 }

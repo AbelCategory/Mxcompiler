@@ -16,6 +16,9 @@ import org.antlr.v4.runtime.tree.ParseTree;
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
 public class Main {
+    private static String Semantic = "-fsyntax-only";
+    private static String LLVMIR = "-emit-llvm";
+    private static String Aseembly = "-S";
 
     public static boolean checkOk(String name) throws IOException{
         File file = new File(name);

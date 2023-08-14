@@ -14,7 +14,7 @@ public class IRFunc extends IRNode {
     }
 
     @Override public String toString() {
-        StringBuilder cur = new StringBuilder("define " + retype.toString());
+        StringBuilder cur = new StringBuilder("define dso_local" + retype.toString());
         cur.append("@ ").append(name).append("(");
         if(!para.isEmpty()) {
             cur.append(para.get(0).toString());

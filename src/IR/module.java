@@ -3,8 +3,9 @@ package IR;
 import java.util.ArrayList;
 
 public class module extends IRNode {
-    ArrayList<IRFunc> func = new ArrayList<>();
-    ArrayList<statment> stat = new ArrayList<>();
+    public ArrayList<IRFunc> func = new ArrayList<>();
+    public ArrayList<IRClass> cls = new ArrayList<>();
+    public ArrayList<globalVar> gvar = new ArrayList<>();
     public module() {
         super();
     }

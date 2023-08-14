@@ -20,13 +20,19 @@ public class IRBuilder implements ASTVistor {
     }
 
     public IRType toIRType(typeNode t) {
-        if(!t.isArray()) {
-            if(t.type.equals("int")) return intIR;
-            if(t.type.equals("void")) return voidIR;
-            if(t.type.equals("bool")) return boolIR;
-            if(t.type.equals("string")) return strIR;
+        IRType tp;
+        switch (t.type) {
+            case "int" -> tp = intIR;
+            case "bool" -> tp = boolIR;
+            case "void" -> tp = voidIR;
+            case "string" -> tp = strIR;
+            default -> tp = null;
         }
-        return ptrIR;
+        if(t.isArray()) {
+            tp = new ptrType(tp, ((typeArrayNode) t).dim);
+        }
+        return tp;
+//        return ptrIR;
     }
 
     @Override public void visit(rtNode cur) {
@@ -168,9 +174,14 @@ public class IRBuilder implements ASTVistor {
         }
     }
 
-    @Override public void visit(postUpdateExpNode cur) {}
+    @Override public void visit(postUpdateExpNode cur) {
 
-    @Override public void visit(preUpdateExpNode cur) {}
+    }
+
+    @Override public void visit(preUpdateExpNode cur) {
+        cur.e.accept(this);
+
+    }
 
     @Override public void visit(condExpNode cur) {
         cur.cond.accept(this);
