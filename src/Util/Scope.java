@@ -1,10 +1,13 @@
 package Util;
 
 import java.util.HashMap;
+import IR.entity;
 import Error.semanticError;
+import Error.internalError;
 
 public class Scope {
     private HashMap<String, Type> members;
+    private HashMap<String, entity> entities;
     private Scope parentScope;
 
     public Type funcReturnType, thisClassType;
@@ -12,6 +15,7 @@ public class Scope {
     public boolean isLoop = false, isFunc = false;
     public Scope(Scope parent) {
         members = new HashMap<>();
+        entities = new HashMap<>();
         parentScope = parent;
         if(parent != null) {
             isLoop = parent.isLoop;
@@ -31,6 +35,20 @@ public class Scope {
             throw new semanticError("multi definition of variable: " + id, p);
         }
         members.put(id, t);
+    }
+
+    public void newVarEntity(String id, entity t) {
+        if(members.containsKey(id)) {
+            throw new internalError("entity " + id + "redefined");
+        }
+        entities.put(id, t);
+    }
+
+    public entity getVarEntity(String id) {
+        if(!members.containsKey(id)) {
+            throw new internalError("entity" + id + "not defined");
+        }
+        return entities.get(id);
     }
 
     public boolean variableDefined(String id) {

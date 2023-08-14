@@ -10,7 +10,7 @@ public class reg extends entity {
         id = ++cnt;
     }
 
-    @Override public String toString() {return "%" + name + "." + id;}
-    @Override public String get_name() {return name + "." + id;}
+    @Override public String toString() {return type.toString() + " %" + name + "." + id;}
+    @Override public String get_name() {return "%" + name + "." + id;}
 
 }

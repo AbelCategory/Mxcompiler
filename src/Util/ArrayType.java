@@ -1,8 +1,8 @@
 package Util;
 
 public class ArrayType extends Type {
-    Type type;
-    int dim;
+    public Type type;
+    public int dim;
 //    int dim;
     public ArrayType(Type baseType, int dim) {
         super("Array");

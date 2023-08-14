@@ -8,5 +8,5 @@ public class literalBool extends literal {
     }
 
     @Override
-    public String get_name() {return val ? "true" : "false";}
+    public String get_name() {return val ? "1" : "0";}
 }

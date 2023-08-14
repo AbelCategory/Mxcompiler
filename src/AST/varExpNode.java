@@ -4,7 +4,7 @@ import Util.Type;
 import Util.position;
 
 public class varExpNode extends exprNode{
-    String name;
+    public String name;
     public varExpNode(String id, position p) {
         super(p, null);
         name = id;

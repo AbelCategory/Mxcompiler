@@ -10,6 +10,10 @@ public class globalVar extends variable {
 
     public String def() {
         String ret = get_name() + " = dso_local global " + type.toString();
-
+        if(type instanceof I_Type) {
+            return ret + " 0";
+        } else {
+            return ret + "zeroinitializer";
+        }
     }
 }
