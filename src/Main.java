@@ -6,6 +6,9 @@ import AST.SymbolCollector;
 import AST.rtNode;
 import Error.error;
 import Error.mxErrorListener;
+import IR.IRBuilder;
+import IR.IRPrinter;
+import IR.module;
 import Util.globalScope;
 import Parser.mxParser;
 import Parser.mxLexer;
@@ -16,9 +19,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
 public class Main {
-    private static String Semantic = "-fsyntax-only";
-    private static String LLVMIR = "-emit-llvm";
-    private static String Aseembly = "-S";
+    private static boolean onlySemantic = false, onlyLLVM = true, onlyAssembly = true;
 
     public static boolean checkOk(String name) throws IOException{
         File file = new File(name);
@@ -33,7 +34,7 @@ public class Main {
     }
 
 
-    public static void compile(InputStream input) throws Exception{
+    public static void compile(InputStream input, OutputStream output) throws Exception{
 //        InputStream input = new FileInputStream(name);
 //        InputStream input = System.in;
         System.out.println(">>>");
@@ -55,6 +56,15 @@ public class Main {
             new SymbolCollector(gScope).visit(rt);
             new SemanticCheck(gScope).visit(rt);
             System.out.println("Compiler OK");
+            if(!onlySemantic) {
+                IRBuilder irBuilder = new IRBuilder(gScope);
+                module topModule = irBuilder.topModule;
+                if(onlyLLVM) {
+                    new IRPrinter((PrintStream) output).visit(topModule);
+                } else if(onlyAssembly) {
+
+                }
+            }
 
         } catch (error er) {
             System.err.println(er.toString());
@@ -69,7 +79,17 @@ public class Main {
     public static void main(String[] args) throws Exception {
 //        InputStream input = new FileInputStream(name);
         InputStream input = System.in;
-        compile(input);
+        OutputStream output = System.out;
+        int n = args.length;
+        for(int i = 0; i < n; ++i) {
+            switch (args[i]) {
+                case "-fsyntax-only" -> onlySemantic = true;
+                case "-emit-llvm" -> onlyLLVM = true;
+                case "-S" -> onlyAssembly = true;
+            }
+        }
+//        boolean isSemantic =
+        compile(input, output);
 //        compile("testcases/sema/misc-package/misc-6.mx");
 //        File justList = new File("testcases/sema/judgelist.txt");
 //        FileReader rd = new FileReader(justList);

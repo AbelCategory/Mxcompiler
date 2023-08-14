@@ -9,6 +9,7 @@ public class IRBuilder implements ASTVistor {
     public globalScope gScope;
     public IRFunc gVarInit;
     public Scope currentScope;
+    public module topModule;
     public voidType voidIR = new voidType();
     public I_Type intIR = new I_Type(32);
     public I_Type boolIR = new I_Type(1);
@@ -150,12 +151,18 @@ public class IRBuilder implements ASTVistor {
         } else {
             switch (cur.op) {
                 case EQ, NEQ, LE, GR, LEQ, GEQ -> {
-                    icmp now = new icmp(cur.op, cur.lhs.ent, cur.rhs.ent, cur.ent);
+                    reg res = new reg(cur.op.toString().toLowerCase(), boolIR);
+                    icmp now = new icmp(cur.op, cur.lhs.ent, cur.rhs.ent, res);
+                    cur.ent = res;
                 }
-                case ADD, SUB, MUL, DIV, MOD, BAND, BOR, BXOR -> {
-                    arith now = new arith(cur.op, cur.lhs.ent, cur.rhs.ent, cur.ent);
+                case ADD, SUB, MUL, DIV, MOD, BAND, BOR, BXOR, LSH, RSH -> {
+                    reg res = new reg(cur.op.toString().toLowerCase(), intIR);
+                    arith now = new arith(cur.op, cur.lhs.ent, cur.rhs.ent, res);
+                    cur.ent = res;
                 }
+                case LAND, LOR -> {
 
+                }
             }
         }
     }

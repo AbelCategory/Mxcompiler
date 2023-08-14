@@ -7,4 +7,9 @@ public class globalVar extends variable {
 
     @Override
     public String get_name() {return "@" + name;}
+
+    public String def() {
+        String ret = get_name() + " = dso_local global " + type.toString();
+
+    }
 }

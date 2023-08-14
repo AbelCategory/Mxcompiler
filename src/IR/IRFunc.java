@@ -23,12 +23,6 @@ public class IRFunc extends IRNode {
                 cur.append(",").append(para.get(i).toString());
             }
         }
-        if(!suite.isEmpty()) {
-            cur.append("{\n");
-            for(block blk : suite)
-                cur.append(blk.toString());
-            cur.append("}");
-        }
         return cur.toString();
     }
 }
