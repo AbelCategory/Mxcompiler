@@ -56,7 +56,17 @@ public class IRBuilder implements ASTVistor {
     @Override public void visit(classNode cur) {}
 
     @Override public void visit(funcNode cur) {
-
+        IRFunc fun = new IRFunc(cur.name, toIRType(gScope.getType(cur.tp, null)));
+        currentScope = new Scope(currentScope);
+        cur.pa.forEach(p -> {
+            IRType tp = toIRType(gScope.getType(cur.tp, null));
+            reg par = new reg(p.name, tp);
+            fun.addAugment(par);
+            localVar res = new localVar(p.name + ".addr", tp);
+            fun.suite.get(0).addInst(new store(tp, par, res));
+        });
+        cur.body.stats.forEach(s -> s.accept(this));
+        currentScope = currentScope.getParentScope();
     }
 
     @Override public void visit(varDefNode cur) {
@@ -312,9 +322,25 @@ public class IRBuilder implements ASTVistor {
         }
     }
 
-    @Override public void visit(assignNode cur) {}
+    @Override public void visit(assignNode cur) {
+        cur.rhs.accept(this);
+        cur.lhs.accept(this);
+        curBlock.addInst(new store(toIRType(cur.lhs.type), cur.rhs.ent, cur.lhs.ent));
+        cur.ent = cur.rhs.ent;
+    }
 
-    @Override public void visit(funCallNode cur) {}
+    @Override public void visit(funCallNode cur) {
+        reg res;
+        if(cur.type.isVoid()) res = null;
+        else res = new reg(cur.funcName + ".res", toIRType(cur.type));
+        call c = new call(res, cur.funcName);
+        cur.arguments.forEach(p -> {
+            p.accept(this);
+            c.addParameter(p.ent);
+        });
+        curBlock.addInst(c);
+        cur.ent = res;
+    }
 
     @Override public void visit(memberFuncNode cur) {}
 

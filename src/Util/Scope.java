@@ -45,10 +45,13 @@ public class Scope {
     }
 
     public entity getVarEntity(String id) {
-        if(!members.containsKey(id)) {
-            throw new internalError("entity" + id + "not defined");
+        if(members.containsKey(id)) {
+            return entities.get(id);
+        } else if(parentScope != null) {
+            return parentScope.getVarEntity(id);
+        } else {
+            throw new internalError("not defined variable " + id);
         }
-        return entities.get(id);
     }
 
     public boolean variableDefined(String id) {

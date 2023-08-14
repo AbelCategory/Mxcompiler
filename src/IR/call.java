@@ -8,11 +8,15 @@ public class call extends statment {
     public String name;
     public ArrayList<entity> para;
 
-    public call(entity rd, IRFunc fn) {
+    public call(entity rd, String fn) {
         super();
         this.rd = rd;
-        name = fn.name;
+        name = fn;
         para = new ArrayList<>();
+    }
+
+    public void addParameter(entity p) {
+        para.add(p);
     }
     //
     @Override public String toString() {
