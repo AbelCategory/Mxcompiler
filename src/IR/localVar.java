@@ -1,8 +1,11 @@
 package IR;
 
 public class localVar extends variable {
+    static int cnt = 0;
+    int id;
     public localVar(String name, IRType t) {
-        super(t, name);
+        super(t, "var." + name + "." + (cnt + 1));
+        id = ++cnt;
     }
 
     @Override

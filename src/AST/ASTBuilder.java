@@ -80,6 +80,15 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
                     if(!rt.mainFn.pa.isEmpty()) {
                         throw new semanticError("main should not hava parameter", rt.mainFn.pos);
                     }
+                    boolean isReturned = false;
+                    for(var s : rt.mainFn.body.stats) {
+                        if(s instanceof returnStatNode) {
+                            isReturned = true;
+                        }
+                    }
+                    if(!isReturned) {
+                        rt.mainFn.body.stats.add(new returnStatNode(new IntNode(0,null, inttype), null));
+                    }
                 } else {
                     rt.funcDef.add((funcNode) (cur = visitFuncDef(d.funcDef())));
                 }

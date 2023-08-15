@@ -10,6 +10,10 @@ public class module extends IRNode {
         super();
     }
 
+    public void addFunc(IRFunc fn) {func.add(fn);}
+
+    public void addVar(globalVar gv) {gvar.add(gv);}
+
     @Override
     public String toString() {return "";}
 }

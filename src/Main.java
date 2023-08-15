@@ -58,6 +58,7 @@ public class Main {
             System.out.println("Compiler OK");
             if(!onlySemantic) {
                 IRBuilder irBuilder = new IRBuilder(gScope);
+                irBuilder.visit(rt);
                 module topModule = irBuilder.topModule;
                 if(onlyLLVM) {
                     new IRPrinter((PrintStream) output).visit(topModule);
@@ -77,10 +78,11 @@ public class Main {
 //        }
     }
     public static void main(String[] args) throws Exception {
-//        InputStream input = new FileInputStream(name);
-        InputStream input = System.in;
-        OutputStream output = System.out;
+        InputStream input = new FileInputStream("1.mx");
+//        InputStream input = System.in;
+        OutputStream output = new PrintStream("1.ll");
         int n = args.length;
+        onlyLLVM = true;
         for(int i = 0; i < n; ++i) {
             switch (args[i]) {
                 case "-fsyntax-only" -> onlySemantic = true;

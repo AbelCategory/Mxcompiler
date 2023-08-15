@@ -19,7 +19,7 @@ public class ptrType extends IRType {
         this.dim = dim;
     }
 
-    @Override public String toString() {return type.toString() + "*";}
+    @Override public String toString() {return "ptr";}
 
     @Override public int getBytes() {return 4;}
 }

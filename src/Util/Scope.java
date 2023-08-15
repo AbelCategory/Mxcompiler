@@ -38,14 +38,14 @@ public class Scope {
     }
 
     public void newVarEntity(String id, entity t) {
-        if(members.containsKey(id)) {
+        if(entities.containsKey(id)) {
             throw new internalError("entity " + id + "redefined");
         }
         entities.put(id, t);
     }
 
     public entity getVarEntity(String id) {
-        if(members.containsKey(id)) {
+        if(entities.containsKey(id)) {
             return entities.get(id);
         } else if(parentScope != null) {
             return parentScope.getVarEntity(id);

@@ -1,6 +1,6 @@
 package AST;
 
-import Util.Type;
+import IR.entity;
 import Util.position;
 
 public class varExpNode extends exprNode{

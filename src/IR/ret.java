@@ -21,7 +21,7 @@ public class ret extends statment {
         if(isvoid) {
             return "ret void";
         } else {
-            return "ret" + retEntity.toString();
+            return "ret " + retEntity.toString();
         }
     }
 }

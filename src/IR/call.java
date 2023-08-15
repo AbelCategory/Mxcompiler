@@ -26,6 +26,7 @@ public class call extends statment {
             if(i > 0) ret.append(", ");
             ret.append(para.get(i).get_name());
         }
+        ret.append(")");
         return ret.toString();
     }
 }

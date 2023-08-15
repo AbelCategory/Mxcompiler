@@ -14,13 +14,15 @@ public class IRPrinter implements IRPass {
     }
     public void visit(module mod) {
         mod.cls.forEach(this::visit);
+        mod.gvar.forEach(g -> out.println(g.def()));
         mod.func.forEach(this::visit);
-        mod.gvar.forEach(g -> out.println(g.toString()));
     }
 
     public void visit(IRFunc fun) {
         out.println(fun.toString() + "{");
+//        visit(fun.entry);
         fun.suite.forEach(this::visit);
+        out.println("}");
     }
 
     public void visit(IRClass cl) {}

@@ -29,7 +29,7 @@ public class IRBuilder implements ASTVistor {
 
     public IRType toIRType(Type t) {
         IRType tp;
-        Type d = t.isArray() ? t : ((ArrayType) t).type;
+        Type d = t.isArray() ? ((ArrayType) t).type : t;
         if(d.isInt()) {
             tp = intIR;
         } else if(d.isVoid()) {
@@ -49,23 +49,36 @@ public class IRBuilder implements ASTVistor {
 
     @Override public void visit(rtNode cur) {
         currentScope = gScope;
+        topModule = new module();
         gVarInit = new IRFunc("__cxx_global_var_init", voidIR);
+        gVarInit.suite.set(0, gVarInit.entry);
+        topModule.addFunc(gVarInit);
+//        cur.funcDef.forEach(addFunRet);
         cur.def.forEach(x -> x.accept(this));
+        gVarInit.suite.get(gVarInit.suite.size() - 1).addInst(new ret());
     }
 
     @Override public void visit(classNode cur) {}
 
     @Override public void visit(funcNode cur) {
         IRFunc fun = new IRFunc(cur.name, toIRType(gScope.getType(cur.tp, null)));
+        topModule.addFunc(fun);
         currentScope = new Scope(currentScope);
+        block entry = fun.suite.get(0);
+        curBlock = entry;
         cur.pa.forEach(p -> {
             IRType tp = toIRType(gScope.getType(cur.tp, null));
             reg par = new reg(p.name, tp);
             fun.addAugment(par);
             localVar res = new localVar(p.name + ".addr", tp);
-            fun.suite.get(0).addInst(new store(tp, par, res));
+            fun.addVarDef(tp, res);
+            entry.addInst(new store(tp, par, res));
+            currentScope.newVarEntity(p.name, res);
         });
+        curFunc = fun;
         cur.body.stats.forEach(s -> s.accept(this));
+        curFunc.entry.stats.addAll(curFunc.suite.get(0).stats);
+        curFunc.suite.set(0, curFunc.entry);
         currentScope = currentScope.getParentScope();
     }
 
@@ -80,11 +93,20 @@ public class IRBuilder implements ASTVistor {
     @Override public void visit(varNode x) {}
 
     public void visitGlobalVar(varDefNode cur) {
+        curFunc = gVarInit;
+        curBlock = curFunc.suite.get(0);
         cur.var.forEach(v -> {
             IRType type = toIRType(gScope.getType(cur.type, null));
             globalVar w = new globalVar(v.name, new ptrType(type));
+            topModule.addVar(w);
+            gScope.newVarEntity(v.name, w);
             if(v.body != null) {
                 v.body.accept(this);
+                if(v.body.ent instanceof literal) {
+                    w.val = v.body.ent;
+                } else {
+                    curBlock.addInst(new store(type, v.body.ent, w));
+                }
             }
         });
     }
@@ -93,15 +115,45 @@ public class IRBuilder implements ASTVistor {
         cur.var.forEach(v -> {
             IRType type = toIRType(gScope.getType(cur.type, null));
             localVar w = new localVar(v.name, new ptrType(type));
+            curFunc.addVarDef(type, w);
+            currentScope.newVarEntity(v.name, w);
             if(v.body != null) {
                 v.body.accept(this);
-
+                curBlock.addInst(new store(type, v.body.ent, w));
             }
         });
     }
 
-    @Override public void visit(BlockStatNode cur) {}
-    @Override public void visit(IfStatNode cur) {}
+    @Override public void visit(BlockStatNode cur) {
+        if(!cur.isnw) currentScope = new Scope(currentScope);
+        cur.stats.forEach(st -> st.accept(this));
+        if(!cur.isnw) currentScope = currentScope.getParentScope();
+    }
+    @Override public void visit(IfStatNode cur) {
+        cur.cond.accept(this);
+        if(cur.cond.ent instanceof literal) {
+            literalBool cond = (literalBool) cur.cond.ent;
+            if(cond.val) {
+                cur.thenStat.accept(this);
+            } else {
+                cur.elseStat.accept(this);
+            }
+            return;
+        }
+        block thenBlock = new block("thenBlock"), elseBlock = new block("elseBlock");
+        block endBlock = new block("endBlock");
+        curBlock.addInst(new br(cur.cond.ent, thenBlock.L, elseBlock.L));
+        curFunc.addBlock(thenBlock);
+        curFunc.addBlock(elseBlock);
+        curFunc.addBlock(endBlock);
+        curBlock = thenBlock;
+        cur.thenStat.accept(this);
+        curBlock.addInst(new br(endBlock.L));
+        curBlock = elseBlock;
+        cur.elseStat.accept(this);
+        curBlock.addInst(new br(endBlock.L));
+        curBlock = endBlock;
+    }
     @Override public void visit(ForDefStatNode cur) {}
     @Override public void visit(ForExpStatNode cur) {}
     @Override public void visit(WhileStatNode cur) {}
@@ -109,7 +161,14 @@ public class IRBuilder implements ASTVistor {
 
     @Override public void visit(continueStatNode cur) {}
 
-    @Override public void visit(returnStatNode cur) {}
+    @Override public void visit(returnStatNode cur) {
+        if(cur.expr != null) {
+            cur.expr.accept(this);
+            curBlock.addInst(new ret(cur.expr.ent)) ;
+        } else {
+            curBlock.addInst(new ret());
+        }
+    }
 
     @Override public void visit(exprStatNode cur) {}
 
@@ -193,8 +252,6 @@ public class IRBuilder implements ASTVistor {
             case LAND, LOR -> {
                 reg res = new reg("frombool", intIR);
                 reg tr1 = new reg("tobool", I_1);
-                block pre = curBlock, block1 = new block(cur.op.toString().toLowerCase() + ".rhs");
-                block block2 = new block(cur.op.toString().toLowerCase() + ".end");
                 cur.lhs.accept(this);
                 if(cur.lhs.ent instanceof literalBool) {
                     literalBool lhs = (literalBool) cur.lhs.ent;
@@ -205,8 +262,12 @@ public class IRBuilder implements ASTVistor {
                     }
                     return;
                 }
+                block pre = curBlock, block1 = new block(cur.op.toString().toLowerCase() + ".rhs");
+                block block2 = new block(cur.op.toString().toLowerCase() + ".end");
                 reg zext = new reg("zero_ext", I_1);
                 phi P = new phi(zext);
+                curFunc.addBlock(block1);
+                curFunc.addBlock(block2);
                 if (cur.op == BinaryOperator.LAND) {
                     pre.addInst(new convert(tr1, cur.lhs.ent, I_1, boolIR, convert.conv.TRUNC));
                     pre.addInst(new br(res, block1.L, block2.L));
@@ -274,8 +335,8 @@ public class IRBuilder implements ASTVistor {
         reg res = new reg(cur.op.toString().toLowerCase(), intIR);
         BinaryOperator op = cur.op == UPDOperator.INC ? BinaryOperator.ADD : BinaryOperator.SUB;
         curBlock.addInst(new arith(op, cur.e.ent, new literalInt(intIR, 1), res));
-        curBlock.addInst(new store(intIR, res, cur.e.ent));
-        cur.ent = cur.e.ent;
+        curBlock.addInst(new store(intIR, res, cur.e.ptr));
+        cur.ent = res;
     }
 
     @Override public void visit(preUpdateExpNode cur) {
@@ -283,8 +344,8 @@ public class IRBuilder implements ASTVistor {
         reg res = new reg(cur.op.toString().toLowerCase(), intIR);
         BinaryOperator op = cur.op == UPDOperator.INC ? BinaryOperator.ADD : BinaryOperator.SUB;
         curBlock.addInst(new arith(op, cur.e.ent, new literalInt(intIR, 1), res));
-        curBlock.addInst(new store(intIR, res, cur.e.ent));
-        cur.ent = res;
+        curBlock.addInst(new store(intIR, res, cur.e.ptr));
+        cur.ent = cur.e.ent;
     }
 
     @Override public void visit(condExpNode cur) {
@@ -301,6 +362,9 @@ public class IRBuilder implements ASTVistor {
             block pre = curBlock;
             block block1 = new block("cond.trueBranch"), block2 = new block("cond.falseBranch");
             block block3 = new block("cond.end");
+            curFunc.addBlock(block1);
+            curFunc.addBlock(block2);
+            curFunc.addBlock(block3);
             reg res = new reg("cond", toIRType(cur.type));
             pre.addInst(new br(cur.cond.ent, block1.L, block2.L));
 
@@ -318,6 +382,7 @@ public class IRBuilder implements ASTVistor {
                 p.addVal(block1.L, cur.exp1.ent);
                 p.addVal(block2.L, cur.exp2.ent);
                 block3.addInst(p);
+                cur.ent = res;
             }
         }
     }
@@ -325,7 +390,7 @@ public class IRBuilder implements ASTVistor {
     @Override public void visit(assignNode cur) {
         cur.rhs.accept(this);
         cur.lhs.accept(this);
-        curBlock.addInst(new store(toIRType(cur.lhs.type), cur.rhs.ent, cur.lhs.ent));
+        curBlock.addInst(new store(toIRType(cur.lhs.type), cur.rhs.ent, cur.lhs.ptr));
         cur.ent = cur.rhs.ent;
     }
 
@@ -334,6 +399,7 @@ public class IRBuilder implements ASTVistor {
         if(cur.type.isVoid()) res = null;
         else res = new reg(cur.funcName + ".res", toIRType(cur.type));
         call c = new call(res, cur.funcName);
+        c.retType = toIRType(gScope.getFunc(cur.funcName, null).returnType);
         cur.arguments.forEach(p -> {
             p.accept(this);
             c.addParameter(p.ent);
@@ -350,8 +416,9 @@ public class IRBuilder implements ASTVistor {
 
     @Override public void visit(varExpNode cur) {
         reg res = new reg("local_var", toIRType(cur.type));
-        entity var = currentScope.getVarEntity(cur.name);
-        curBlock.addInst(new load(toIRType(cur.type), res, var));
+        entity v = currentScope.getVarEntity(cur.name);
+        cur.ptr = v;
+        curBlock.addInst(new load(toIRType(cur.type), res, v));
         cur.ent = res;
     }
 
