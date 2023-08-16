@@ -4,10 +4,13 @@ import java.util.HashMap;
 import Error.semanticError;
 import AST.typeNode;
 import AST.typeArrayNode;
+import IR.IRClass;
+import IR.IRType;
 
 public class globalScope extends Scope{
     public HashMap<String, Type> types = new HashMap<>();
     public HashMap<String, FuncType> funcs = new HashMap<>();
+    public HashMap<String, Integer> index = new HashMap<>();
     public globalScope(Scope parentScope) {
         super(parentScope);
     }
@@ -17,6 +20,7 @@ public class globalScope extends Scope{
         }
         types.put(type, t);
     }
+
     public Type getType(typeNode type, position p) {
         if(types.containsKey(type.type)) {
             if(type.isArray()){
@@ -27,6 +31,14 @@ public class globalScope extends Scope{
             }
         }
         throw new semanticError("no such type: " + type.type, p);
+    }
+
+    public void addClassVar(String s, int idx) {
+        index.put(s, idx);
+    }
+
+    public int getVarIndex(String s) {
+        return index.get(s);
     }
 
     public boolean typeDefined(String type) {

@@ -5,6 +5,7 @@ import Error.semanticError;
 
 public class SymbolCollector implements ASTVistor {
     private globalScope gScope;
+    int idx;
     public SymbolCollector(globalScope gsp) {
         gScope = gsp;
     }
@@ -18,6 +19,7 @@ public class SymbolCollector implements ASTVistor {
 
     private void visitMem(classNode c) {
         c.funcDef.forEach(f -> visitFunMem(c, f));
+        idx = 0;
         c.varDef.forEach(v -> visitVarMem(c, v));
         if(c.constructor != null) {
 //            c.constructor.tp =
@@ -37,7 +39,10 @@ public class SymbolCollector implements ASTVistor {
 
     private void visitVarMem(classNode c, varDefNode v) {
         Type type = gScope.getType(v.type, v.pos);
-        v.var.forEach(var -> gScope.newVariable(c.name + "::" + var.name, type, var.pos));
+        v.var.forEach(var -> {
+            gScope.newVariable(c.name + "::" + var.name, type, var.pos);
+            gScope.addClassVar(c.name + "::" + var.name, idx++);
+        });
     }
 
 

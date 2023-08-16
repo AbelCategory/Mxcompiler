@@ -13,12 +13,21 @@ public class IRClass extends IRType {
         this.name = name;
     }
 
-    public void addMember(String member, IRType t) {
+    public void addMember(IRType t) {
         typeList.add(t);
-        members.put(member, t);
     }
 
     @Override public int getBytes() {return size;}
 
     @Override public String toString() {return "%struct." + name;}
+
+    public String def() {
+        StringBuilder ret = new StringBuilder(toString() + " = type {");
+        for(int i = 0; i < typeList.size(); ++i) {
+            if(i > 0) ret.append(",");
+            ret.append(typeList.get(i).toString());
+        }
+        ret.append(" }");
+        return ret.toString();
+    }
 }

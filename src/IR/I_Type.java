@@ -1,7 +1,7 @@
 package IR;
 
 public class I_Type extends IRType {
-    int i_N;
+    public int i_N;
     public I_Type(int i_N) {
         this.i_N = i_N;
     }

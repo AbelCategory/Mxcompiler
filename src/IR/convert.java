@@ -7,7 +7,7 @@ public class convert extends statment {
     public entity res, val;
     public IRType ft, tt;
     public conv op;
-    public convert(entity res, entity val, IRType ft, IRType tt, conv c) {
+    public convert(entity res, entity val, IRType tt, IRType ft, conv c) {
         super();
         this.res = res;
         this.val = val;

@@ -14,6 +14,8 @@ public class module extends IRNode {
 
     public void addVar(globalVar gv) {gvar.add(gv);}
 
+    public void addClass(IRClass c) {cls.add(c);}
+
     @Override
     public String toString() {return "";}
 }

@@ -8,5 +8,8 @@ public class literalBool extends literal {
     }
 
     @Override
-    public String get_name() {return val ? "1" : "0";}
+    public String get_name() {
+        if(((I_Type) type).i_N == 1) return val ? "true" : "false";
+        else return val ? "1" : "0";
+    }
 }
