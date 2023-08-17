@@ -5,5 +5,7 @@ public class literalNull extends literal{
         super(t);
     }
 
-    @Override public String get_name() {return null;}
+    @Override public String get_name() {return "null";}
+
+    @Override public String toString() {return "null";}
 }

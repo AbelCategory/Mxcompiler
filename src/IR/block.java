@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 public class block extends IRNode {
     public label L;
+    public boolean isReturned = false;
     static int cnt = 0;
     public LinkedList<statment> stats = new LinkedList<>();
     block(String lb) {

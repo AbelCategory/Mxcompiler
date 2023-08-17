@@ -15,7 +15,7 @@ public class IRClass extends IRType {
 
     public void addMember(IRType t) {
         typeList.add(t);
-        size += t.getBytes();
+        size += 4;
     }
 
     @Override public int getBytes() {return size;}
@@ -26,7 +26,9 @@ public class IRClass extends IRType {
         StringBuilder ret = new StringBuilder(this + " = type {");
         for(int i = 0; i < typeList.size(); ++i) {
             if(i > 0) ret.append(",");
-            ret.append(typeList.get(i).toString());
+            if(typeList.get(i) instanceof I_Type)  ret.append(" i32");
+            else ret.append(" ptr");
+            //ret.append(typeList.get(i).toString());
         }
         ret.append(" }");
         return ret.toString();

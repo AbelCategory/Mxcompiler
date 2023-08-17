@@ -5,11 +5,11 @@ import java.util.ArrayList;
 
 public class IRFunc extends IRNode {
     public IRType retype;
-    public reg retReg;
+    public localVar retReg;
     public String name;
     public ArrayList<entity> para = new ArrayList<>();
     public ArrayList<block> suite = new ArrayList<>();
-    public block entry;
+    public block entry, ret;
     public label firstBlock;
     public boolean declare = false;
 //    private ListIterator<statment> varDef = null;
