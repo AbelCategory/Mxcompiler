@@ -3,8 +3,8 @@ package AST;
 import Util.position;
 
 public class NewExpNode extends exprNode {
-    newTypeNode tp;
-    typeNode typ;
+    public newTypeNode tp;
+    public typeNode typ;
     public NewExpNode(newTypeNode cur, position p) {
         super(p, null);
         tp = cur;

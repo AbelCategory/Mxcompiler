@@ -5,12 +5,15 @@ import Util.*;
 
 import AST.ASTVistor;
 
+import java.util.Objects;
+
 public class IRBuilder implements ASTVistor {
     public globalScope gScope;
     public IRFunc gVarInit;
     public Scope currentScope;
     public module topModule;
     public IRFunc curFunc;
+    public IRClass curClass;
     public block curBlock;
     public voidType voidIR = new voidType();
     public I_Type intIR = new I_Type(32);
@@ -21,9 +24,11 @@ public class IRBuilder implements ASTVistor {
     public literalNull nullLit = new literalNull(nullIR);
     public literalBool falseLit = new literalBool(boolIR, false);
     public literalBool trueLit = new literalBool(boolIR, true);
+    public builtin Built;
 
     public IRBuilder(globalScope gScope) {
         this.gScope = gScope;
+        Built = new builtin(this);
     }
 
     public IRType toIRType(Type t) {
@@ -38,7 +43,7 @@ public class IRBuilder implements ASTVistor {
         } else if(d.isString()) {
             tp = strIR;
         } else {
-            tp = ptrIR;
+            tp = new ptrType(gScope.irt.get(t.Typename));
         }
         if(t.isArray()) {
             tp = new ptrType(tp, ((ArrayType) t).dim);
@@ -46,11 +51,11 @@ public class IRBuilder implements ASTVistor {
         return tp;
     }
 
-    public IRType getIRType(Type t) {
-        if(t.isInt()) return intIR;
-        if(t.isBool()) return boolIR;
-        return ptrIR;
-    }
+//    public IRType getIRType(Type t) {
+//        if(t.isInt()) return intIR;
+//        if(t.isBool()) return boolIR;
+//        return ptrIR;
+//    }
 
     @Override public void visit(rtNode cur) {
         currentScope = gScope;
@@ -58,31 +63,55 @@ public class IRBuilder implements ASTVistor {
         gVarInit = new IRFunc("__cxx_global_var_init", voidIR);
         gVarInit.suite.set(0, gVarInit.entry);
         topModule.addFunc(gVarInit);
-        cur.classDef.forEach(this::visitClassDef);
+        cur.classDef.forEach(c -> gScope.irt.put(c.name, new IRClass(c.name)));
         cur.varDef.forEach(v -> v.accept(this));
         cur.funcDef.forEach(f -> f.accept(this));
+        cur.mainFn.accept(this);
 //        cur.funcDef.forEach(addFunRet);
 //        cur.def.forEach(x -> x.accept(this));
         gVarInit.suite.get(gVarInit.suite.size() - 1).addInst(new ret());
     }
 
-    public void visitClassDef(classNode cur) {
-        IRClass c = new IRClass(cur.name);
+    @Override public void visit(classNode cur) {
+        currentScope = new Scope(currentScope);
+        curClass = (IRClass) gScope.irt.get(cur.name);
+        topModule.addClass(curClass);
         cur.varDef.forEach(x -> {
-            x.var.forEach(v -> {
-                c.addMember(getIRType(gScope.getType(x.type, null)));
-            });
+            x.var.forEach(v ->
+                    currentScope.newVarEntity(v.name, new localVar(v.name, toIRType(gScope.getType(x.type, null)))));
         });
-        topModule.addClass(c);
+        if(cur.constructor != null) {
+            visitConstructor(cur.constructor);
+        }
+        currentScope = currentScope.getParentScope();
+        curClass = null;
     }
 
-    @Override public void visit(classNode cur) {
-//        IRFunc fun = new IRFunc(cur.name, voidIR);
-
+    public void visitConstructor(funcNode cur) {
+        currentScope = new Scope(currentScope);
+        IRFunc fun = new IRFunc("constructor." + cur.name, voidIR);
+        curFunc = fun;
+        topModule.addFunc(curFunc);
+        ptrType pt = new ptrType(curClass);
+        reg par = new reg("this", pt);
+        fun.addAugment(par);
+        localVar res = new localVar("this.addr", pt);
+        fun.addVarDef(pt, res);
+        block entry = fun.suite.get(0);
+        entry.addInst(new store(pt, par, res));
+        currentScope.newVarEntity("this", res);
+        curFunc = fun;
+        curBlock = entry;
+        cur.body.stats.forEach(s -> s.accept(this));
+        curFunc.entry.stats.addAll(curFunc.suite.get(0).stats);
+        curFunc.suite.set(0, curFunc.entry);
+        currentScope = currentScope.getParentScope();
     }
 
     @Override public void visit(funcNode cur) {
-        IRFunc fun = new IRFunc(cur.name, toIRType(gScope.getType(cur.tp, null)));
+        String name = cur.name;
+        if(!cur.name.equals("main")) name = "fun." + name;
+        IRFunc fun = new IRFunc(name, toIRType(gScope.getType(cur.tp, null)));
         topModule.addFunc(fun);
         currentScope = new Scope(currentScope);
         block entry = fun.suite.get(0);
@@ -204,7 +233,7 @@ public class IRBuilder implements ASTVistor {
         }
         curBlock.addInst(new br(cond.L));
         curBlock = end;
-
+        curFunc.addBlock(end);
     }
     @Override public void visit(ForDefStatNode cur) {
         currentScope = new Scope(currentScope);
@@ -223,6 +252,9 @@ public class IRBuilder implements ASTVistor {
         block cond = new block("while.cond"), body = new block("while.body"), end = new block("while.end");
         currentScope.loopCond = cond.L;
         currentScope.loopEnd = end.L;
+        curFunc.addBlock(cond);
+        curFunc.addBlock(body);
+        curFunc.addBlock(end);
         curBlock.addInst(new br(cond.L));
         curBlock = cond;
         cur.cond.accept(this);
@@ -471,7 +503,7 @@ public class IRBuilder implements ASTVistor {
         reg res;
         if(cur.type.isVoid()) res = null;
         else res = new reg(cur.funcName + ".res", toIRType(cur.type));
-        call c = new call(res, cur.funcName);
+        call c = new call(res, "fun." + cur.funcName);
         c.retType = toIRType(gScope.getFunc(cur.funcName, null).returnType);
         cur.arguments.forEach(p -> {
             p.accept(this);
@@ -508,15 +540,39 @@ public class IRBuilder implements ASTVistor {
         if(!cur.isLeft) {
             reg res = new reg("local_var", toIRType(cur.type));
             curBlock.addInst(new load(toIRType(cur.type), res, ptr));
+            cur.ent = res;
         }
     }
 
-    @Override public void visit(ArrayExpNode cur) {
+    private IRType getArrayIndex(ptrType ptr) {
+        if(ptr.dim == 1) return ptr.type;
+        else return new ptrType(ptr.type, ptr.dim - 1);
+    }
 
+    @Override public void visit(ArrayExpNode cur) {
+        cur.array.accept(this);
+        cur.index.accept(this);
+        entity arr = cur.array.ent;
+        ptrType tp = (ptrType) getArrayIndex((ptrType) arr.type);
+        reg ptr = new reg("array_idx", tp);
+        cur.ptr = ptr;
+        curBlock.addInst(new getelementptr(ptr, arr, getArrayIndex(tp), cur.index.ent));
+        if(!cur.isLeft) {
+            reg res = new reg("array", ptr.type);
+            curBlock.addInst(new load(tp, res, ptr));
+            cur.ent = res;
+        }
     }
 
     @Override public void visit(varExpNode cur) {
         entity v = currentScope.getVarEntity(cur.name);
+        if(curClass != null && currentScope.getParentScope().isClassEntity(cur.name)) {
+            entity This = currentScope.getVarEntity("this");
+            String name = curClass.name + "::" + cur.name;
+            reg res = new reg(cur.name, new ptrType(toIRType(currentScope.getVarType(name, null))));
+            curBlock.addInst(new getelementptr(res, This, This.type, new literalInt(intIR, gScope.getVarIndex(name))));
+            v = res;
+        }
         cur.ptr = v;
         if(!cur.isLeft) {
             reg res = new reg("local_var", toIRType(cur.type));
@@ -525,7 +581,13 @@ public class IRBuilder implements ASTVistor {
         }
     }
 
-    @Override public void visit(NewExpNode cur) {}
+    @Override public void visit(NewExpNode cur) {
+        if(cur.tp.dim == 0) {
+            reg ptr = new reg("ptr", toIRType(cur.type));
+            call c = new call(ptr, "class_malloc");
+//            c.addParameter(new literalInt());
+        }
+    }
 
     @Override public void visit(constExprNode cur) {
         if(cur.type.isInt()) {
@@ -539,5 +601,13 @@ public class IRBuilder implements ASTVistor {
         }
     }
 
-    @Override public void visit(ThisNode cur) {}
+    @Override public void visit(ThisNode cur) {
+        entity This = currentScope.getVarEntity("this");
+        cur.ptr = This;
+        if(!cur.isLeft) {
+            reg res = new reg("this_ptr", This.type);
+            curBlock.addInst(new load(This.type, res, This));
+            cur.ent = res;
+        }
+    }
 }

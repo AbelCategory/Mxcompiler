@@ -11,6 +11,7 @@ public class IRFunc extends IRNode {
     public ArrayList<block> suite = new ArrayList<>();
     public block entry;
     public label firstBlock;
+    public boolean declare = false;
 //    private ListIterator<statment> varDef = null;
     public IRFunc(String id, IRType type) {
         super();
@@ -20,6 +21,15 @@ public class IRFunc extends IRNode {
         suite.add(new block("entry"));
         firstBlock = suite.get(0).L;
 //        varDef = suite.get(0).stats.listIterator();
+    }
+
+    public IRFunc(String id, IRType type, boolean declare) {
+        super();
+        name = id;
+        retype = type;
+        entry = null;
+        suite = null;
+        this.declare = declare;
     }
 
     public void addVarDef(IRType t, entity v) {
@@ -35,8 +45,9 @@ public class IRFunc extends IRNode {
     }
 
     @Override public String toString() {
-        StringBuilder cur = new StringBuilder("define dso_local " + retype.toString());
-        cur.append("@").append(name).append("(");
+        String str = declare ? "declare " : "define ";
+        StringBuilder cur = new StringBuilder(str + "dso_local " + retype.toString());
+        cur.append(" @").append(name).append("(");
         if(!para.isEmpty()) {
             cur.append(para.get(0).toString());
             int n = para.size();

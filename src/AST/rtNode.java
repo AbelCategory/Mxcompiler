@@ -9,7 +9,7 @@ public class rtNode extends ASTNode {
     public ArrayList<funcNode> funcDef;
     public ArrayList<varDefNode> varDef;
     public ArrayList<ASTNode> def;
-    funcNode mainFn;
+    public funcNode mainFn;
 
     public rtNode(position p) {
         super(p);

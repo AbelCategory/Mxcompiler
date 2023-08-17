@@ -11,6 +11,8 @@ public class globalScope extends Scope{
     public HashMap<String, Type> types = new HashMap<>();
     public HashMap<String, FuncType> funcs = new HashMap<>();
     public HashMap<String, Integer> index = new HashMap<>();
+    public HashMap<String, IRType> irt = new HashMap<>();
+    public HashMap<String, String> irf = new HashMap<>();
     public globalScope(Scope parentScope) {
         super(parentScope);
     }

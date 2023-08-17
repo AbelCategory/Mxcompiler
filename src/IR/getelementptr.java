@@ -3,9 +3,9 @@ package IR;
 public class getelementptr extends statment {
     public entity res, p;
     public IRType t;
-    public literalInt idx;
+    public entity idx;
 //    public ArrayList<literalInt> idx = new ArrayList<>();
-    public getelementptr(entity res, entity p, IRType tp, literalInt idx) {
+    public getelementptr(entity res, entity p, IRType tp, entity idx) {
         super();
         this.res = res;
         this.p = p;

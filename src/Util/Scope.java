@@ -41,6 +41,8 @@ public class Scope {
         members.put(id, t);
     }
 
+    public boolean isClassEntity(String id) {return entities.containsKey(id);}
+
     public void newVarEntity(String id, entity t) {
         if(entities.containsKey(id)) {
             throw new internalError("entity " + id + "redefined");
