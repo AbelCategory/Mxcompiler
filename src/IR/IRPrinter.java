@@ -13,6 +13,7 @@ public class IRPrinter implements IRPass {
         out = System.out;
     }
     public void visit(module mod) {
+        mod.str.forEach(s -> out.println(s.def()));
         mod.cls.forEach(this::visit);
         out.println();
         mod.gvar.forEach(g -> out.println(g.def()));
@@ -21,19 +22,21 @@ public class IRPrinter implements IRPass {
     }
 
     public void visit(IRFunc fun) {
-        out.println();
         if(!fun.declare) {
+            out.println();
             out.println(fun + "{");
 //        visit(fun.entry);
             fun.suite.forEach(this::visit);
+            out.println();
             out.println("}");
         } else {
             out.println(fun);
         }
-        out.println();
     }
 
-    public void visit(IRClass cl) {}
+    public void visit(IRClass cl) {
+        out.println(cl.def());
+    }
 
     public void visit(block bl) {
         out.println(bl.toString());

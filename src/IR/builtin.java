@@ -5,7 +5,7 @@ import Util.globalScope;
 public class builtin{
     IRBuilder irb;
     ptrType ptr;
-    I_Type Int;
+    I_Type Int, Bool;
     voidType Void;
     IRString str;
     globalScope gScope;
@@ -14,6 +14,7 @@ public class builtin{
         gScope = irb.gScope;
         ptr = irb.ptrIR;
         Int = irb.intIR;
+        Bool = irb.boolIR;
         str = irb.strIR;
         Void = irb.voidIR;
 
@@ -87,5 +88,46 @@ public class builtin{
         array_size.addAugment(new reg("arr", ptr));
         irb.topModule.addFunc(array_size);
 
+        gScope.irf.put("string_add", "string_add");
+        IRFunc string_add = new IRFunc("string_add", ptr, true);
+        string_add.addAugment(new reg("s1", ptr));
+        string_add.addAugment(new reg("s2", ptr));
+        irb.topModule.addFunc(string_add);
+
+        gScope.irf.put("string_eq", "string_eq");
+        IRFunc string_eq = new IRFunc("string_eq", Bool, true);
+        string_eq.addAugment(new reg("s1", ptr));
+        string_eq.addAugment(new reg("s2", ptr));
+        irb.topModule.addFunc(string_eq);
+
+        gScope.irf.put("string_neq", "string_neq");
+        IRFunc string_neq = new IRFunc("string_neq", Bool, true);
+        string_neq.addAugment(new reg("s1", ptr));
+        string_neq.addAugment(new reg("s2", ptr));
+        irb.topModule.addFunc(string_neq);
+
+        gScope.irf.put("string_lt", "string_lt");
+        IRFunc string_lt = new IRFunc("string_lt", Bool, true);
+        string_lt.addAugment(new reg("s1", ptr));
+        string_lt.addAugment(new reg("s2", ptr));
+        irb.topModule.addFunc(string_lt);
+
+        gScope.irf.put("string_le", "string_le");
+        IRFunc string_le = new IRFunc("string_le", Bool, true);
+        string_le.addAugment(new reg("s1", ptr));
+        string_le.addAugment(new reg("s2", ptr));
+        irb.topModule.addFunc(string_le);
+
+        gScope.irf.put("string_gt", "string_gt");
+        IRFunc string_gt = new IRFunc("string_gt", Bool, true);
+        string_gt.addAugment(new reg("s1", ptr));
+        string_gt.addAugment(new reg("s2", ptr));
+        irb.topModule.addFunc(string_gt);
+
+        gScope.irf.put("string_ge", "string_ge");
+        IRFunc string_ge = new IRFunc("string_ge", Bool, true);
+        string_ge.addAugment(new reg("s1", ptr));
+        string_ge.addAugment(new reg("s2", ptr));
+        irb.topModule.addFunc(string_ge);
     }
 }

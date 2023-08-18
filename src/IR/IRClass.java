@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 public class IRClass extends IRType {
     public String name;
+    private boolean constructor = false;
     public int size = 0;
     public ArrayList<IRType> typeList = new ArrayList<>();
     public HashMap<String, Integer> members = new HashMap<>();
@@ -33,4 +34,6 @@ public class IRClass extends IRType {
         ret.append(" }");
         return ret.toString();
     }
+
+    @Override public boolean isConstructor() {return constructor;}
 }

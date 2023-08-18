@@ -17,7 +17,7 @@ public class globalVar extends variable {
         } else if(tp instanceof I_Type) {
             return ret + " 0";
         } else {
-            return ret + "zeroinitializer";
+            return ret + "ptr null";
         }
     }
 }

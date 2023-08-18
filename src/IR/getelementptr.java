@@ -15,6 +15,6 @@ public class getelementptr extends statment {
 
     @Override
     public String toString() {
-        return res.get_name() + " getelementptr " + t.toString() + ", ptr " + p.get_name() + ", " + idx.toString();
+        return res.get_name() + " = getelementptr " + t.toString() + ", ptr " + p.get_name() + ", " + idx.toString();
     }
 }

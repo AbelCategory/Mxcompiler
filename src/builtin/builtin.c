@@ -91,3 +91,34 @@ int string_parseInt(char *s) {
 int string_ord(char *s, int x) {    
     return s[x];
 }
+
+char *string_add(char *s1, char *s2) {
+    char *ret = (char *) malloc(strlen(s1) + strlen(s2) + 1);
+    strcpy(ret, s1);
+    strcat(ret, s2);
+    return ret;
+}
+
+bool string_eq(char *s1, char *s2) {
+    return !strcmp(s1, s2);
+}
+
+bool string_neq(char *s1, char *s2) {
+    return strcmp(s1, s2);
+}
+
+bool string_lt(char *s1, char *s2) {
+    return strcmp(s1, s2) < 0;
+}
+
+bool string_le(char *s1, char *s2) {
+    return strcmp(s1, s2) <= 0;
+}
+
+bool string_gt(char *s1, char *s2) {
+    return strcmp(s1, s2) > 0;
+}
+
+bool string_ge(char *s1, char *s2) {
+    return strcmp(s1, s2) >= 0;
+}
