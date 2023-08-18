@@ -390,7 +390,7 @@ public class ASTBuilder extends mxBaseVisitor<ASTNode> {
             String str =  ctx.Str().getText();
             int len = str.length();
             String value;
-            if(len > 2) value = str.substring(1, len - 2);
+            if(len > 2) value = str.substring(1, len - 1);
             else value = "";
             return new StringNode(value, new position(ctx), stringtype);
 

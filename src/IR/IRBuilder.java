@@ -153,7 +153,7 @@ public class IRBuilder implements ASTVistor {
         } else {
             curBlock = curFunc.ret;
             reg resc = new reg("ret_val", curFunc.retype);
-            curBlock.addInst(new load(curFunc.retype, curFunc.retReg, resc));
+            curBlock.addInst(new load(curFunc.retype, resc, curFunc.retReg));
             curBlock.addInst(new ret(resc));
         }
 
@@ -182,7 +182,7 @@ public class IRBuilder implements ASTVistor {
         } else {
             curBlock = curFunc.ret;
             reg res = new reg("ret_val", curFunc.retype);
-            curBlock.addInst(new load(curFunc.retype, curFunc.retReg, res));
+            curBlock.addInst(new load(curFunc.retype, res, curFunc.retReg));
             curBlock.addInst(new ret(res));
             curFunc.addBlock(curBlock);
         }
@@ -681,7 +681,7 @@ public class IRBuilder implements ASTVistor {
         curBlock.addInst(new getelementptr(ptr, arr, getArrayIndex(tp), cur.index.ent));
         if(!cur.isLeft) {
             reg res = new reg("array", ptr.type);
-            curBlock.addInst(new load(tp, res, ptr));
+            curBlock.addInst(new load(getArrayIndex(tp), res, ptr));
             cur.ent = res;
         }
     }
@@ -711,6 +711,11 @@ public class IRBuilder implements ASTVistor {
 
         if(d == len) {
             curBlock.addInst(new load(intIR, siz, tp.exprs.get(d).ptr));
+            if(d > 0) {
+                reg cur_addr = new reg("cur_addr", ptrIR);
+                curBlock.addInst(new load(ptrIR, cur_addr, addr));
+                addr = cur_addr;
+            }
 //            IRType typ = len + 1 == tp.dim ? toIRType(gScope.getType_(tp.type, null)) : ptrIR;
             reg res = new reg("new_res", ptrIR);
             call c = new call(res,"array_malloc");
@@ -738,6 +743,7 @@ public class IRBuilder implements ASTVistor {
             curBlock = body;
             reg array = new reg("array_now", ptrIR), arr_next = new reg("array_next", ptrIR), now_I = new reg("cur_i", intIR);
             localVar curArray = new localVar("curArray", ptrIR);
+            curFunc.addVarDef(ptrIR, curArray);
             curBlock.addInst(new load(ptrIR, array, addr));
             curBlock.addInst(new load(intIR, now_I, ind));
             curBlock.addInst(new getelementptr(arr_next, array, ptrIR, now_I));
@@ -781,13 +787,15 @@ public class IRBuilder implements ASTVistor {
                 e.accept(this);
                 if(e.ptr == null) {
                     localVar now = new localVar("var.arrsiz", intIR);
-                    curFunc.entry.addInst(new alloca(intIR, now));
+//                    curFunc.entry.addInst(new alloca(intIR, now));
+                    curFunc.addVarDef(intIR, now);
                     curBlock.addInst(new store(intIR, e.ent, now));
                     e.ptr = now;
                 }
             });
             localVar res = new localVar("array_store", ptrIR);
-            curFunc.entry.addInst(new alloca(ptrIR, res));
+//            curFunc.entry.addInst(new alloca(ptrIR, res));
+            curFunc.addVarDef(ptrIR, res);
             array_alloc(cur.tp, 0, 0, res);
             for(int i = 1; i < cur.tp.exprs.size(); ++i) {
                 array_alloc(cur.tp, 0, i, res);

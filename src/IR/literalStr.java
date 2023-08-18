@@ -16,7 +16,7 @@ public class literalStr extends literal {
     }
 
     public String def() {
-        return "@.str." + cnt + " = private unnamed_addr const [" + (val.length() + 1) + " x i8] c\"" + val + "\"";
+        return "@.str." + cnt + " = private unnamed_addr constant [" + (val.length() + 1) + " x i8] c\"" + val + "\\00\"";
 
     }
 }

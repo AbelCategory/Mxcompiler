@@ -19,12 +19,12 @@ public class builtin{
         Void = irb.voidIR;
 
         gScope.irf.put("array_malloc", "array_malloc");
-        IRFunc array_alloc = new IRFunc("array_alloc", ptr, true);
+        IRFunc array_alloc = new IRFunc("array_malloc", ptr, true);
         array_alloc.addAugment(new reg("n", Int));
         irb.topModule.addFunc(array_alloc);
 
         gScope.irf.put("class_malloc", "class_malloc");
-        IRFunc class_alloc = new IRFunc("class_alloc", ptr, true);
+        IRFunc class_alloc = new IRFunc("class_malloc", ptr, true);
         class_alloc.addAugment(new reg("n", Int));
         irb.topModule.addFunc(class_alloc);
 
