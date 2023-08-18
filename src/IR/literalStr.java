@@ -12,11 +12,11 @@ public class literalStr extends literal {
 
     @Override
     public String get_name() {
-        return "@.str." + cnt;
+        return "@.str." + id;
     }
 
     public String def() {
-        return "@.str." + cnt + " = private unnamed_addr constant [" + (val.length() + 1) + " x i8] c\"" + val + "\\00\"";
+        return "@.str." + id + " = private unnamed_addr constant [" + (val.length() + 1) + " x i8] c\"" + val + "\\00\"";
 
     }
 }

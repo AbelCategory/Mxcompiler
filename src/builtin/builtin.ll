@@ -318,43 +318,60 @@ define dso_local i32 @string_parseInt(ptr noundef %0) #0 {
   store ptr %12, ptr %5, align 4
   br label %13
 
-13:                                               ; preds = %25, %11
+13:                                               ; preds = %36, %11
   %14 = load ptr, ptr %5, align 4
   %15 = load i8, ptr %14, align 1
   %16 = icmp ne i8 %15, 0
-  br i1 %16, label %17, label %28
+  br i1 %16, label %17, label %39
 
 17:                                               ; preds = %13
-  %18 = load i32, ptr %3, align 4
-  %19 = mul nsw i32 %18, 10
-  %20 = load ptr, ptr %5, align 4
-  %21 = load i8, ptr %20, align 1
-  %22 = sext i8 %21 to i32
-  %23 = add nsw i32 %19, %22
-  %24 = sub nsw i32 %23, 48
-  store i32 %24, ptr %3, align 4
-  br label %25
+  %18 = load ptr, ptr %5, align 4
+  %19 = load i8, ptr %18, align 1
+  %20 = sext i8 %19 to i32
+  %21 = icmp slt i32 %20, 48
+  br i1 %21, label %22, label %28
 
-25:                                               ; preds = %17
-  %26 = load ptr, ptr %5, align 4
-  %27 = getelementptr inbounds i8, ptr %26, i32 1
-  store ptr %27, ptr %5, align 4
+22:                                               ; preds = %17
+  %23 = load ptr, ptr %5, align 4
+  %24 = load i8, ptr %23, align 1
+  %25 = sext i8 %24 to i32
+  %26 = icmp sgt i32 %25, 57
+  br i1 %26, label %27, label %28
+
+27:                                               ; preds = %22
+  br label %39
+
+28:                                               ; preds = %22, %17
+  %29 = load i32, ptr %3, align 4
+  %30 = mul nsw i32 %29, 10
+  %31 = load ptr, ptr %5, align 4
+  %32 = load i8, ptr %31, align 1
+  %33 = sext i8 %32 to i32
+  %34 = add nsw i32 %30, %33
+  %35 = sub nsw i32 %34, 48
+  store i32 %35, ptr %3, align 4
+  br label %36
+
+36:                                               ; preds = %28
+  %37 = load ptr, ptr %5, align 4
+  %38 = getelementptr inbounds i8, ptr %37, i32 1
+  store ptr %38, ptr %5, align 4
   br label %13, !llvm.loop !11
 
-28:                                               ; preds = %13
-  %29 = load i32, ptr %4, align 4
-  %30 = icmp ne i32 %29, 0
-  br i1 %30, label %31, label %34
+39:                                               ; preds = %27, %13
+  %40 = load i32, ptr %4, align 4
+  %41 = icmp ne i32 %40, 0
+  br i1 %41, label %42, label %45
 
-31:                                               ; preds = %28
-  %32 = load i32, ptr %3, align 4
-  %33 = sub nsw i32 0, %32
-  store i32 %33, ptr %3, align 4
-  br label %34
+42:                                               ; preds = %39
+  %43 = load i32, ptr %3, align 4
+  %44 = sub nsw i32 0, %43
+  store i32 %44, ptr %3, align 4
+  br label %45
 
-34:                                               ; preds = %31, %28
-  %35 = load i32, ptr %3, align 4
-  ret i32 %35
+45:                                               ; preds = %42, %39
+  %46 = load i32, ptr %3, align 4
+  ret i32 %46
 }
 
 ; Function Attrs: noinline nounwind optnone uwtable

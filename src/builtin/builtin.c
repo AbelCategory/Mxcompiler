@@ -83,6 +83,7 @@ int string_parseInt(char *s) {
     int res = 0, neg = 0;
     if((*s) == '-') neg = 1;
     for(char *i = s; *i; ++i) {
+        if((*i) < 48 && (*i) > 57) break;
         res = res * 10 + (*i) - 48;
     }
     if(neg) res = -res;
