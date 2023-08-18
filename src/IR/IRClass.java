@@ -2,24 +2,39 @@ package IR;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class IRClass extends IRType {
     public String name;
-    private boolean constructor = false;
+    public boolean constructor = false;
     public int size = 0;
     public ArrayList<IRType> typeList = new ArrayList<>();
     public HashMap<String, Integer> members = new HashMap<>();
+    public HashSet<String> memberFunc = new HashSet<>();
 
     public IRClass(String name) {
         this.name = name;
     }
 
-    public void addMember(IRType t) {
+    public void addMember(IRType t, String id) {
         typeList.add(t);
-        size += 4;
+        members.put(id, size);
+        size ++;
     }
 
-    @Override public int getBytes() {return size;}
+    public void addMemberFun(String id) {
+        memberFunc.add(id);
+    }
+
+    public boolean funDefined(String id) {
+        return memberFunc.contains(id);
+    }
+
+    public boolean varDefined(String id) {
+        return members.containsKey(id);
+    }
+
+    @Override public int getBytes() {return size * 4;}
 
     @Override public String toString() {return "%struct." + name;}
 

@@ -27,8 +27,8 @@ public class IRPrinter implements IRPass {
             out.println(fun + "{");
 //        visit(fun.entry);
             fun.suite.forEach(this::visit);
-            out.println();
             out.println("}");
+            out.println();
         } else {
             out.println(fun);
         }
@@ -41,6 +41,7 @@ public class IRPrinter implements IRPass {
     public void visit(block bl) {
         out.println(bl.toString());
         bl.stats.forEach(ins -> out.println("  " + ins.toString()));
+        out.println();
     }
 
     public void visit(arith x) {}

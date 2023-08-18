@@ -24,7 +24,7 @@ public class call extends statment {
         int n = para.size();
         for(int i = 0; i < n; ++i) {
             if(i > 0) ret.append(", ");
-            ret.append(para.get(i).get_name());
+            ret.append(para.get(i).toString());
         }
         ret.append(")");
         return ret.toString();

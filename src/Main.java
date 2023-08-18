@@ -37,7 +37,7 @@ public class Main {
     public static void compile(InputStream input, OutputStream output) throws Exception{
 //        InputStream input = new FileInputStream(name);
 //        InputStream input = System.in;
-        System.out.println(">>>");
+        System.err.println("Compile_begin");
 //        boolean ok = true, realOk = checkOk(name);
         try{
             globalScope gScope = new globalScope(null);
@@ -55,11 +55,12 @@ public class Main {
 
             new SymbolCollector(gScope).visit(rt);
             new SemanticCheck(gScope).visit(rt);
-            System.out.println("Compiler OK");
+            System.err.println("Compiler OK");
             if(!onlySemantic) {
                 IRBuilder irBuilder = new IRBuilder(gScope);
                 irBuilder.visit(rt);
                 module topModule = irBuilder.topModule;
+                System.err.println("IR builder OK");
                 if(onlyLLVM) {
                     new IRPrinter((PrintStream) output).visit(topModule);
                 } else if(onlyAssembly) {

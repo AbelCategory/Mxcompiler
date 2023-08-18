@@ -1,6 +1,7 @@
 package Util;
 
 import java.util.HashMap;
+
 import IR.entity;
 import IR.label;
 import Error.semanticError;
@@ -9,6 +10,8 @@ import Error.internalError;
 public class Scope {
     private HashMap<String, Type> members;
     private HashMap<String, entity> entities;
+
+//    private HashSet<String> memberFun;
     private Scope parentScope;
 
     public Type funcReturnType, thisClassType;
@@ -18,6 +21,7 @@ public class Scope {
     public Scope(Scope parent) {
         members = new HashMap<>();
         entities = new HashMap<>();
+//        memberFun = new HashSet<>();
         parentScope = parent;
         if(parent != null) {
             isLoop = parent.isLoop;
@@ -41,7 +45,7 @@ public class Scope {
         members.put(id, t);
     }
 
-    public boolean isClassEntity(String id) {return entities.containsKey(id);}
+//    public boolean isClassEntity(String id) {return entities.containsKey(id);}
 
     public void newVarEntity(String id, entity t) {
         if(entities.containsKey(id)) {

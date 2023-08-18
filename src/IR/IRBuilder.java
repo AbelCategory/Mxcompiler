@@ -23,6 +23,7 @@ public class IRBuilder implements ASTVistor {
     public literalBool falseLit = new literalBool(boolIR, false);
     public literalBool trueLit = new literalBool(boolIR, true);
     public literalInt zeroLit = new literalInt(intIR, 0);
+    public literalInt oneLit = new literalInt(intIR, 1);
     public builtin Built;
 
     public IRBuilder(globalScope gScope) {
@@ -64,9 +65,12 @@ public class IRBuilder implements ASTVistor {
         topModule.addFunc(gVarInit);
         cur.classDef.forEach(c -> {
             IRClass cl = new IRClass(c.name);
+            if(c.constructor != null) {
+                cl.constructor = true;
+            }
             c.varDef.forEach(vd -> {
                 IRType t = toIRType(gScope.getType(vd.type, null));
-                vd.var.forEach(ve -> cl.addMember(t));
+                vd.var.forEach(ve -> cl.addMember(t, ve.name));
             });
             gScope.irt.put(c.name, cl);
         });
@@ -87,6 +91,7 @@ public class IRBuilder implements ASTVistor {
             x.var.forEach(v ->
                     currentScope.newVarEntity(v.name, new localVar(v.name, toIRType(gScope.getType(x.type, null)))));
         });
+        cur.funcDef.forEach(f -> curClass.addMemberFun(f.name));
         if(cur.constructor != null) {
             visitConstructor(cur.constructor);
         }
@@ -124,7 +129,7 @@ public class IRBuilder implements ASTVistor {
 
     public void visitMemFun(String cls, funcNode cur) {
         currentScope = new Scope(currentScope);
-        IRFunc fun = new IRFunc(cls + cur.name, toIRType(gScope.getType(cur.tp, null)));
+        IRFunc fun = new IRFunc("member_fun." + cls + "." + cur.name, toIRType(gScope.getType(cur.tp, null)));
         topModule.addFunc(fun);
         block entry = fun.suite.get(0);
         curBlock = entry;
@@ -135,6 +140,7 @@ public class IRBuilder implements ASTVistor {
         localVar res = new localVar("this.addr", new ptrType(pt));
         fun.addVarDef(pt, res);
         entry.addInst(new store(pt, par, res));
+        currentScope.newVarEntity("this", res);
         curFunc = fun;
         curBlock = entry;
         visitFunPara(cur, fun, entry);
@@ -204,7 +210,7 @@ public class IRBuilder implements ASTVistor {
         }
         cur.body.stats.forEach(s -> s.accept(this));
         if(curBlock != null && !curBlock.isReturned) {
-            curBlock.addInst(new br(curFunc.retReg));
+            curBlock.addInst(new br(curFunc.ret.L));
         }
     }
 
@@ -605,7 +611,16 @@ public class IRBuilder implements ASTVistor {
         else res = new reg(cur.funcName + ".res", toIRType(cur.type));
         String name = "fun." + cur.funcName;
         if(gScope.irf.containsKey(cur.funcName)) name = gScope.irf.get(cur.funcName);
+        else if(curClass != null && curClass.funDefined(cur.funcName)) name = "member_fun." + curClass.name + "." + cur.funcName;;
         call c = new call(res, name);
+        if(curClass != null && curClass.funDefined(cur.funcName)) {
+            entity This = currentScope.getVarEntity("this");
+//            String cur_name = curClass.name + ;
+            reg cur_this = new reg("this_ptr", ptrIR);
+            IRType tp = ((ptrType) This.type).type;
+            curBlock.addInst(new load(ptrIR, cur_this, This));
+            c.addParameter(cur_this);
+        }
         c.retType = toIRType(gScope.getFunc(cur.funcName, null).returnType);
         cur.arguments.forEach(p -> {
             p.accept(this);
@@ -617,9 +632,11 @@ public class IRBuilder implements ASTVistor {
 
     @Override public void visit(memberFuncNode cur) {
         reg res;
-        String name = cur.obj.type.Typename + "::" + cur.funcName;
+        String name = cur.obj.type.toString() + "::" + cur.funcName;
         if(gScope.irf.containsKey(name)) {
             name = gScope.irf.get(name);
+        } else {
+            name = "member_fun." + cur.obj.type.toString() + "." + cur.funcName;
         }
         if(cur.type.isVoid()) res = null;
         else res = new reg(name + ".res", toIRType(cur.type));
@@ -636,11 +653,11 @@ public class IRBuilder implements ASTVistor {
     }
 
     @Override public void visit(memberVarNode cur) {
-        String name = cur.obj.type.Typename + "::" + cur.varName;
+        String name = cur.obj.type.toString() + "::" + cur.varName;
         reg ptr = new reg(cur.varName, new ptrType(toIRType(currentScope.getVarType(name, null))));
         cur.obj.accept(this);
         cur.obj.isLeft = true;
-        curBlock.addInst(new getelementptr(ptr, cur.obj.ent, toIRType(cur.obj.type), new literalInt(intIR, gScope.getVarIndex(name))));
+        curBlock.addInst(new getelementptr(ptr, cur.obj.ent, gScope.irt.get(cur.obj.type.toString()), new literalInt(intIR, gScope.getVarIndex(name)), 0));
         cur.ptr = ptr;
         if(!cur.isLeft) {
             reg res = new reg("local_var", toIRType(cur.type));
@@ -650,7 +667,7 @@ public class IRBuilder implements ASTVistor {
     }
 
     private IRType getArrayIndex(ptrType ptr) {
-        if(ptr.dim == 1) return ptr.type;
+        if(ptr.dim == 0) return ptr.type;
         else return new ptrType(ptr.type, ptr.dim - 1);
     }
 
@@ -671,7 +688,7 @@ public class IRBuilder implements ASTVistor {
 
     @Override public void visit(varExpNode cur) {
         entity v = currentScope.getVarEntity(cur.name);
-        if(curClass != null && currentScope.getParentScope().isClassEntity(cur.name)) {
+        if(curClass != null && curClass.varDefined(cur.name)) {
             entity This = currentScope.getVarEntity("this");
             String name = curClass.name + "::" + cur.name;
             reg cur_this = new reg("this_ptr", ptrIR);
@@ -693,10 +710,11 @@ public class IRBuilder implements ASTVistor {
         reg siz = new reg("siz", intIR);
 
         if(d == len) {
-            curBlock.addInst(new load(intIR, tp.exprs.get(d).ptr, siz));
+            curBlock.addInst(new load(intIR, siz, tp.exprs.get(d).ptr));
 //            IRType typ = len + 1 == tp.dim ? toIRType(gScope.getType_(tp.type, null)) : ptrIR;
             reg res = new reg("new_res", ptrIR);
             call c = new call(res,"array_malloc");
+            c.retType = ptrIR;
             c.addParameter(siz);
             curBlock.addInst(c);
             curBlock.addInst(new store(ptrIR, res, addr));
@@ -704,33 +722,48 @@ public class IRBuilder implements ASTVistor {
         } else {
             block cond = new block("new_for.cond"), body = new block("new_for.body"), step = new block("new_for.step"), end = new block("new_for.end");
             localVar ind = new localVar("ind", intIR);
-            curBlock.addInst(new store(ptrIR, ind, zeroLit));
+            curFunc.entry.addInst(new alloca(intIR, ind));
+            curBlock.addInst(new store(intIR, zeroLit, ind));
             curBlock.addInst(new br(cond.L));
+
             curFunc.addBlock(cond);
             reg condition = new reg("comp", boolIR), i = new reg("id", intIR);
             curBlock = cond;
-            curBlock.addInst(new load(intIR, tp.exprs.get(d).ptr, siz));
-            curBlock.addInst(new load(intIR, ind, i));
+            curBlock.addInst(new load(intIR, siz, tp.exprs.get(d).ptr));
+            curBlock.addInst(new load(intIR, i, ind));
             curBlock.addInst(new icmp(BinaryOperator.LE, i, siz, condition));
             curBlock.addInst(new br(condition, body.L, end.L));
+
             curFunc.addBlock(body);
             curBlock = body;
             reg array = new reg("array_now", ptrIR), arr_next = new reg("array_next", ptrIR), now_I = new reg("cur_i", intIR);
             localVar curArray = new localVar("curArray", ptrIR);
-            curBlock.addInst(new load(ptrIR, addr, array));
-            curBlock.addInst(new load(intIR, i, now_I));
+            curBlock.addInst(new load(ptrIR, array, addr));
+            curBlock.addInst(new load(intIR, now_I, ind));
             curBlock.addInst(new getelementptr(arr_next, array, ptrIR, now_I));
             curBlock.addInst(new store(ptrIR, arr_next, curArray));
             array_alloc(tp, d + 1, len, curArray);
+            curBlock.addInst(new br(step.L));
+
             curFunc.addBlock(step);
+            curBlock = step;
+            reg ind_cur = new reg("id", intIR), ind_res = new reg("ind", intIR);
+            curBlock.addInst(new load(intIR, ind_cur, ind));
+            curBlock.addInst(new arith(BinaryOperator.ADD, ind_cur, oneLit, ind_res));
+            curBlock.addInst(new store(intIR, ind_res, ind));
+            curBlock.addInst(new br(cond.L));
+
+            curFunc.addBlock(end);
+            curBlock = end;
         }
     }
 
     @Override public void visit(NewExpNode cur) {
         if(cur.tp.dim == 0) {
-            IRClass cl = (IRClass) gScope.irt.get(cur.type.getTypename());
+            IRClass cl = (IRClass) gScope.irt.get(cur.type.toString());
             reg ptr = new reg("ptr", toIRType(cur.type));
             call c = new call(ptr, "class_malloc");
+            c.retType = ptrIR;
             c.addParameter(new literalInt(intIR, cl.getBytes()));
             cur.ent = ptr;
             curBlock.addInst(c);
@@ -750,9 +783,11 @@ public class IRBuilder implements ASTVistor {
                     localVar now = new localVar("var.arrsiz", intIR);
                     curFunc.entry.addInst(new alloca(intIR, now));
                     curBlock.addInst(new store(intIR, e.ent, now));
+                    e.ptr = now;
                 }
             });
-            localVar res = new localVar("var.array_store", ptrIR);
+            localVar res = new localVar("array_store", ptrIR);
+            curFunc.entry.addInst(new alloca(ptrIR, res));
             array_alloc(cur.tp, 0, 0, res);
             for(int i = 1; i < cur.tp.exprs.size(); ++i) {
                 array_alloc(cur.tp, 0, i, res);
@@ -760,7 +795,7 @@ public class IRBuilder implements ASTVistor {
             cur.ptr = res;
             if(!cur.isLeft) {
                 reg now = new reg("var.res", ptrIR);
-                curBlock.addInst(new load(ptrIR, res, now));
+                curBlock.addInst(new load(ptrIR, now, res));
                 cur.ent = now;
             }
         }

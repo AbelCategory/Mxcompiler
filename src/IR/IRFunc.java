@@ -52,7 +52,7 @@ public class IRFunc extends IRNode {
             cur.append(para.get(0).toString());
             int n = para.size();
             for(int i = 1; i < n; ++i) {
-                cur.append(",").append(para.get(i).toString());
+                cur.append(", ").append(para.get(i).toString());
             }
         }
         cur.append(")");
