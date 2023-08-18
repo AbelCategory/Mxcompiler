@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <string.h>
+#include <stdbool.h>
 
 int* array_malloc(int n) {
     int* arr = (int*) malloc(n * 4 + 4);
@@ -19,7 +20,7 @@ void print(char *s) {
 }
 
 void println(char *s) {
-    printf("%d\n", s);
+    printf("%s\n", s);
 }
 
 void printInt(int n) {
