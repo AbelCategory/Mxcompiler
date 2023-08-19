@@ -79,6 +79,10 @@ public class Main {
 //        }
     }
     public static void main(String[] args) throws Exception {
+//        onlyLLVM = true;
+//        compile(new FileInputStream("1.mx"), new PrintStream("1.ll"));
+        TestIR.testIR();
+        /*
         InputStream input = new FileInputStream("1.mx");
 //        InputStream input = System.in;
         OutputStream output = new PrintStream("1.ll");
@@ -101,7 +105,7 @@ public class Main {
 //        while((name = br.readLine()) != null) {
 //            String fileName = "testcases/sema" + name.substring(1);
 //            System.out.println(fileName);
-//            compile(fileName);
+//            compile(fileName);*/
 //        }
     }
 }

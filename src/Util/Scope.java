@@ -17,7 +17,7 @@ public class Scope {
     public Type funcReturnType, thisClassType;
     public boolean isClass = false;
     public boolean isLoop = false, isFunc = false;
-    public label loopCond, loopEnd;
+    public label loopContinue, loopEnd;
     public Scope(Scope parent) {
         members = new HashMap<>();
         entities = new HashMap<>();
@@ -29,7 +29,7 @@ public class Scope {
             funcReturnType = parent.funcReturnType;
             isClass = parent.isClass;
             thisClassType = parent.thisClassType;
-            loopCond = parent.loopCond;
+            loopContinue = parent.loopContinue;
             loopEnd = parent.loopEnd;
         }
     }

@@ -47,7 +47,7 @@ public class IRBuilder implements ASTVistor {
             tp = new ptrType(gScope.irt.get(t.getTypename()));
         }
         if(t.isArray()) {
-            tp = new ptrType(tp, ((ArrayType) t).dim);
+            tp = new ptrType(tp, ((ArrayType) t).dim - 1);
         }
         return tp;
     }
@@ -61,7 +61,6 @@ public class IRBuilder implements ASTVistor {
     @Override public void visit(rtNode cur) {
         currentScope = gScope;
         gVarInit = new IRFunc("__cxx_global_var_init", voidIR);
-        gVarInit.suite.set(0, gVarInit.entry);
         topModule.addFunc(gVarInit);
         cur.classDef.forEach(c -> {
             IRClass cl = new IRClass(c.name);
@@ -74,12 +73,18 @@ public class IRBuilder implements ASTVistor {
             });
             gScope.irt.put(c.name, cl);
         });
-        cur.classDef.forEach(c -> c.accept(this));
+
+        curBlock = gVarInit.suite.get(0);
         cur.varDef.forEach(v -> v.accept(this));
+
+        cur.classDef.forEach(c -> c.accept(this));
+
         cur.funcDef.forEach(f -> f.accept(this));
         cur.mainFn.accept(this);
 //        cur.funcDef.forEach(addFunRet);
 //        cur.def.forEach(x -> x.accept(this));
+        gVarInit.entry.stats.addAll(gVarInit.suite.get(0).stats);
+        gVarInit.suite.set(0, gVarInit.entry);
         gVarInit.suite.get(gVarInit.suite.size() - 1).addInst(new ret());
     }
 
@@ -212,7 +217,7 @@ public class IRBuilder implements ASTVistor {
     private void visitFuncBody(funcNode cur, block entry) {
         if(!(curFunc.retype instanceof voidType)) {
             curFunc.retReg = new localVar("retVal", new ptrType(curFunc.retype));
-            entry.addInst(new alloca(curFunc.retype, curFunc.retReg));
+            curFunc.addVarDef(curFunc.retype, curFunc.retReg);
         }
         cur.body.stats.forEach(s -> s.accept(this));
         if(curBlock != null && !curBlock.isReturned) {
@@ -232,7 +237,6 @@ public class IRBuilder implements ASTVistor {
 
     public void visitGlobalVar(varDefNode cur) {
         curFunc = gVarInit;
-        curBlock = curFunc.suite.get(0);
         cur.var.forEach(v -> {
             IRType type = toIRType(gScope.getType(cur.type, null));
             globalVar w = new globalVar(v.name, new ptrType(type));
@@ -305,7 +309,7 @@ public class IRBuilder implements ASTVistor {
         curFunc.addBlock(cond);
         curBlock.addInst(new br(cond.L));
         curBlock = cond;
-        currentScope.loopCond = cond.L;
+        currentScope.loopContinue = cur.step != null ? step.L : cond.L;
         currentScope.loopEnd = end.L;
         if(cur.cond != null) {
             cur.cond.accept(this);
@@ -313,7 +317,9 @@ public class IRBuilder implements ASTVistor {
             curBlock = body;
             curFunc.addBlock(body);
         }
+        currentScope = new Scope(currentScope);
         cur.body.accept(this);
+        currentScope = currentScope.getParentScope();
         if(cur.step != null) {
             curFunc.addBlock(step);
             curBlock.addInst(new br(step.L));
@@ -339,7 +345,7 @@ public class IRBuilder implements ASTVistor {
     @Override public void visit(WhileStatNode cur) {
         currentScope = new Scope(currentScope);
         block cond = new block("while.cond"), body = new block("while.body"), end = new block("while.end");
-        currentScope.loopCond = cond.L;
+        currentScope.loopContinue = cond.L;
         currentScope.loopEnd = end.L;
         curFunc.addBlock(cond);
         curFunc.addBlock(body);
@@ -359,7 +365,7 @@ public class IRBuilder implements ASTVistor {
     }
 
     @Override public void visit(continueStatNode cur) {
-        curBlock.addInst(new br(currentScope.loopEnd));
+        curBlock.addInst(new br(currentScope.loopContinue));
     }
 
     @Override public void visit(returnStatNode cur) {
@@ -445,6 +451,8 @@ public class IRBuilder implements ASTVistor {
                         case GR -> add_call("string_gt", cur.lhs.ent, cur.rhs.ent, res, boolIR);
                         case GEQ -> add_call("string_ge", cur.lhs.ent, cur.rhs.ent, res, boolIR);
                     }
+                } else {
+                    curBlock.addInst(new icmp(cur.op, cur.lhs.ent, cur.rhs.ent, res));
                 }
                 cur.ent = res;
             }
@@ -453,7 +461,15 @@ public class IRBuilder implements ASTVistor {
                 cur.rhs.accept(this);
                 if((cur.lhs.ent instanceof literal) && (cur.rhs.ent instanceof literal)) {
                     switch (cur.op) {
-                        case ADD -> cur.ent = new literalInt(intIR, ((literalInt) cur.lhs.ent).val + ((literalInt) cur.rhs.ent).val);
+                        case ADD -> {
+                            if(cur.lhs.ent instanceof literalStr) {
+                                literalStr ptr = new literalStr(strIR, ((literalStr) cur.lhs.ent).val + ((literalStr) cur.rhs.ent).val);
+                                topModule.str.add(ptr);
+                                cur.ent = ptr;
+                            } else {
+                                cur.ent = new literalInt(intIR, ((literalInt) cur.lhs.ent).val + ((literalInt) cur.rhs.ent).val);
+                            }
+                        }
                         case SUB -> cur.ent = new literalInt(intIR, ((literalInt) cur.lhs.ent).val - ((literalInt) cur.rhs.ent).val);
                         case MUL -> cur.ent = new literalInt(intIR, ((literalInt) cur.lhs.ent).val * ((literalInt) cur.rhs.ent).val);
                         case DIV -> cur.ent = new literalInt(intIR, ((literalInt) cur.lhs.ent).val / ((literalInt) cur.rhs.ent).val);
@@ -685,13 +701,14 @@ public class IRBuilder implements ASTVistor {
         cur.array.accept(this);
         cur.index.accept(this);
         entity arr = cur.array.ent;
-        ptrType tp = (ptrType) getArrayIndex((ptrType) arr.type);
-        reg ptr = new reg("array_idx", tp);
+        IRType tp =  getArrayIndex((ptrType) arr.type);
+        reg ptr = new reg("array_idx", arr.type);
         cur.ptr = ptr;
-        curBlock.addInst(new getelementptr(ptr, arr, getArrayIndex(tp), cur.index.ent));
+        //curBlock.addInst(new getelementptr(ptr, arr, getArrayIndex(tp), cur.index.ent));
+        curBlock.addInst(new getelementptr(ptr, arr, tp, cur.index.ent));
         if(!cur.isLeft) {
-            reg res = new reg("array", tp.type);
-            curBlock.addInst(new load(getArrayIndex(tp), res, ptr));
+            reg res = new reg("array", tp);
+            curBlock.addInst(new load(tp, res, ptr));
             cur.ent = res;
         }
     }
@@ -705,7 +722,7 @@ public class IRBuilder implements ASTVistor {
             curBlock.addInst(new load(ptrIR, cur_this, This));
             IRType tt =  ((ptrType) This.type).type;
             reg res = new reg(cur.name, new ptrType(toIRType(currentScope.getVarType(name, null))));
-            curBlock.addInst(new getelementptr(res, cur_this, tt, new literalInt(intIR, gScope.getVarIndex(name))));
+            curBlock.addInst(new getelementptr(res, cur_this, tt, new literalInt(intIR, gScope.getVarIndex(name)), 0));
             v = res;
         }
         cur.ptr = v;

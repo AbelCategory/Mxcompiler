@@ -127,93 +127,79 @@ define dso_local ptr @toString(i32 noundef %0) #0 {
   br label %14
 
 14:                                               ; preds = %11, %1
-  %15 = load i32, ptr %2, align 4
-  %16 = icmp eq i32 %15, 0
-  br i1 %16, label %17, label %22
+  br label %15
 
-17:                                               ; preds = %14
-  %18 = load ptr, ptr %6, align 4
-  %19 = load i32, ptr %3, align 4
-  %20 = add nsw i32 %19, 1
-  store i32 %20, ptr %3, align 4
-  %21 = getelementptr inbounds i8, ptr %18, i32 %19
-  store i8 48, ptr %21, align 1
-  br label %22
-
-22:                                               ; preds = %17, %14
-  br label %23
-
-23:                                               ; preds = %34, %22
+15:                                               ; preds = %26, %14
+  %16 = load i32, ptr %2, align 4
+  %17 = srem i32 %16, 10
+  %18 = add nsw i32 %17, 48
+  %19 = trunc i32 %18 to i8
+  %20 = load ptr, ptr %6, align 4
+  %21 = load i32, ptr %3, align 4
+  %22 = add nsw i32 %21, 1
+  store i32 %22, ptr %3, align 4
+  %23 = getelementptr inbounds i8, ptr %20, i32 %21
+  store i8 %19, ptr %23, align 1
   %24 = load i32, ptr %2, align 4
-  %25 = srem i32 %24, 10
-  %26 = add nsw i32 %25, 48
-  %27 = trunc i32 %26 to i8
-  %28 = load ptr, ptr %6, align 4
-  %29 = load i32, ptr %3, align 4
-  %30 = add nsw i32 %29, 1
-  store i32 %30, ptr %3, align 4
-  %31 = getelementptr inbounds i8, ptr %28, i32 %29
-  store i8 %27, ptr %31, align 1
-  %32 = load i32, ptr %2, align 4
-  %33 = sdiv i32 %32, 10
-  store i32 %33, ptr %2, align 4
-  br label %34
+  %25 = sdiv i32 %24, 10
+  store i32 %25, ptr %2, align 4
+  br label %26
 
-34:                                               ; preds = %23
-  %35 = load i32, ptr %2, align 4
+26:                                               ; preds = %15
+  %27 = load i32, ptr %2, align 4
+  %28 = icmp ne i32 %27, 0
+  br i1 %28, label %15, label %29, !llvm.loop !7
+
+29:                                               ; preds = %26
+  %30 = load i32, ptr %3, align 4
+  %31 = load i32, ptr %4, align 4
+  %32 = add nsw i32 %30, %31
+  %33 = add nsw i32 %32, 1
+  %34 = call noalias ptr @malloc(i32 noundef %33) #5
+  store ptr %34, ptr %7, align 4
+  %35 = load i32, ptr %4, align 4
   %36 = icmp ne i32 %35, 0
-  br i1 %36, label %23, label %37, !llvm.loop !7
+  br i1 %36, label %37, label %42
 
-37:                                               ; preds = %34
-  %38 = load i32, ptr %3, align 4
-  %39 = load i32, ptr %4, align 4
-  %40 = add nsw i32 %38, %39
-  %41 = add nsw i32 %40, 1
-  %42 = call noalias ptr @malloc(i32 noundef %41) #5
-  store ptr %42, ptr %7, align 4
-  %43 = load i32, ptr %4, align 4
-  %44 = icmp ne i32 %43, 0
-  br i1 %44, label %45, label %50
+37:                                               ; preds = %29
+  %38 = load ptr, ptr %7, align 4
+  %39 = load i32, ptr %5, align 4
+  %40 = add nsw i32 %39, 1
+  store i32 %40, ptr %5, align 4
+  %41 = getelementptr inbounds i8, ptr %38, i32 %39
+  store i8 45, ptr %41, align 1
+  br label %42
 
-45:                                               ; preds = %37
-  %46 = load ptr, ptr %7, align 4
-  %47 = load i32, ptr %5, align 4
-  %48 = add nsw i32 %47, 1
-  store i32 %48, ptr %5, align 4
-  %49 = getelementptr inbounds i8, ptr %46, i32 %47
-  store i8 45, ptr %49, align 1
-  br label %50
+42:                                               ; preds = %37, %29
+  br label %43
 
-50:                                               ; preds = %45, %37
-  br label %51
+43:                                               ; preds = %53, %42
+  %44 = load ptr, ptr %6, align 4
+  %45 = load i32, ptr %3, align 4
+  %46 = add nsw i32 %45, -1
+  store i32 %46, ptr %3, align 4
+  %47 = getelementptr inbounds i8, ptr %44, i32 %46
+  %48 = load i8, ptr %47, align 1
+  %49 = load ptr, ptr %7, align 4
+  %50 = load i32, ptr %5, align 4
+  %51 = add nsw i32 %50, 1
+  store i32 %51, ptr %5, align 4
+  %52 = getelementptr inbounds i8, ptr %49, i32 %50
+  store i8 %48, ptr %52, align 1
+  br label %53
 
-51:                                               ; preds = %61, %50
-  %52 = load ptr, ptr %6, align 4
-  %53 = load i32, ptr %3, align 4
-  %54 = add nsw i32 %53, -1
-  store i32 %54, ptr %3, align 4
-  %55 = getelementptr inbounds i8, ptr %52, i32 %54
-  %56 = load i8, ptr %55, align 1
+53:                                               ; preds = %43
+  %54 = load i32, ptr %3, align 4
+  %55 = icmp ne i32 %54, 0
+  br i1 %55, label %43, label %56, !llvm.loop !9
+
+56:                                               ; preds = %53
   %57 = load ptr, ptr %7, align 4
   %58 = load i32, ptr %5, align 4
-  %59 = add nsw i32 %58, 1
-  store i32 %59, ptr %5, align 4
-  %60 = getelementptr inbounds i8, ptr %57, i32 %58
-  store i8 %56, ptr %60, align 1
-  br label %61
-
-61:                                               ; preds = %51
-  %62 = load i32, ptr %3, align 4
-  %63 = icmp ne i32 %62, 0
-  br i1 %63, label %51, label %64, !llvm.loop !9
-
-64:                                               ; preds = %61
-  %65 = load ptr, ptr %7, align 4
-  %66 = load i32, ptr %5, align 4
-  %67 = getelementptr inbounds i8, ptr %65, i32 %66
-  store i8 0, ptr %67, align 1
-  %68 = load ptr, ptr %7, align 4
-  ret ptr %68
+  %59 = getelementptr inbounds i8, ptr %57, i32 %58
+  store i8 0, ptr %59, align 1
+  %60 = load ptr, ptr %7, align 4
+  ret ptr %60
 }
 
 ; Function Attrs: noinline nounwind optnone uwtable

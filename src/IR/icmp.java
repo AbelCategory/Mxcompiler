@@ -24,6 +24,6 @@ public class icmp extends statment {
     }
 
     @Override public String toString() {
-        return res.get_name() + " = icmp " + opt.toString().toLowerCase() + " i32 " + ls.get_name() + ", " + rs.get_name();
+        return res.get_name() + " = icmp " + opt.toString().toLowerCase() + " " + ls.type.toString() + " " + ls.get_name() + ", " + rs.get_name();
     }
 }

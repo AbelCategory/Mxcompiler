@@ -1,0 +1,1 @@
+clang-15 builtin.c -emit-llvm -S -o builtin.ll -m32

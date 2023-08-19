@@ -47,7 +47,6 @@ char* toString(int x) {
     int len = 0, neg = 0, tl = 0;
     char *tmp = (char *) malloc(11);
     if(x < 0) x = -x, neg = 1;
-    if(x == 0) tmp[len++] = 48;
     do {
         tmp[len++] = x % 10 + 48;
         x /= 10;
