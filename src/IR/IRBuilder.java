@@ -44,7 +44,7 @@ public class IRBuilder implements ASTVistor {
         } else if(d.isString()) {
             tp = strIR;
         } else {
-            tp = new ptrType(gScope.irt.get(t.Typename));
+            tp = new ptrType(gScope.irt.get(t.getTypename()));
         }
         if(t.isArray()) {
             tp = new ptrType(tp, ((ArrayType) t).dim);
@@ -155,6 +155,7 @@ public class IRBuilder implements ASTVistor {
             reg resc = new reg("ret_val", curFunc.retype);
             curBlock.addInst(new load(curFunc.retype, resc, curFunc.retReg));
             curBlock.addInst(new ret(resc));
+            curFunc.addBlock(curBlock);
         }
 
         curFunc.entry.stats.addAll(curFunc.suite.get(0).stats);
@@ -170,6 +171,11 @@ public class IRBuilder implements ASTVistor {
         topModule.addFunc(fun);
         currentScope = new Scope(currentScope);
         block entry = fun.suite.get(0);
+        if(cur.name.equals("main")) {
+            call init = new call(null, "__cxx_global_var_init");
+            init.retType = voidIR;
+            entry.addInst(init);
+        }
         curBlock = entry;
         fun.ret = new block("return", true);
         visitFunPara(cur, fun, entry);
@@ -374,10 +380,11 @@ public class IRBuilder implements ASTVistor {
         cur.expr.accept(this);
     }
 
-    private void add_call(String func, entity ls, entity rs, reg res) {
+    private void add_call(String func, entity ls, entity rs, reg res, IRType ret) {
         call c = new call(res, func);
         c.addParameter(ls);
         c.addParameter(rs);
+        c.retType = ret;
         curBlock.addInst(c);
     }
 
@@ -431,12 +438,12 @@ public class IRBuilder implements ASTVistor {
                     curBlock.addInst(new icmp(cur.op, cur.lhs.ent, cur.rhs.ent, res));
                 } else if(cur.lhs.type.isString()) {
                     switch (cur.op) {
-                        case EQ -> add_call("string_eq", cur.lhs.ent, cur.rhs.ent, res);
-                        case NEQ -> add_call("string_neq", cur.lhs.ent, cur.rhs.ent, res);
-                        case LE -> add_call("string_lt", cur.lhs.ent, cur.rhs.ent, res);
-                        case LEQ -> add_call("string_le", cur.lhs.ent, cur.rhs.ent, res);
-                        case GR -> add_call("string_gt", cur.lhs.ent, cur.rhs.ent, res);
-                        case GEQ -> add_call("string_ge", cur.lhs.ent, cur.rhs.ent, res);
+                        case EQ -> add_call("string_eq", cur.lhs.ent, cur.rhs.ent, res, boolIR);
+                        case NEQ -> add_call("string_neq", cur.lhs.ent, cur.rhs.ent, res, boolIR);
+                        case LE -> add_call("string_lt", cur.lhs.ent, cur.rhs.ent, res, boolIR);
+                        case LEQ -> add_call("string_le", cur.lhs.ent, cur.rhs.ent, res, boolIR);
+                        case GR -> add_call("string_gt", cur.lhs.ent, cur.rhs.ent, res, boolIR);
+                        case GEQ -> add_call("string_ge", cur.lhs.ent, cur.rhs.ent, res, boolIR);
                     }
                 }
                 cur.ent = res;
@@ -462,7 +469,7 @@ public class IRBuilder implements ASTVistor {
                 }
                 if(cur.lhs.type.isString() && cur.op == BinaryOperator.ADD) {
                     reg res = new reg(cur.op.toString().toLowerCase(), strIR);
-                    add_call("string_add", cur.lhs.ent, cur.rhs.ent, res);
+                    add_call("string_add", cur.lhs.ent, cur.rhs.ent, res, strIR);
                     cur.ent = res;
                     return;
                 }
@@ -503,7 +510,7 @@ public class IRBuilder implements ASTVistor {
                     curBlock.addInst(new br(block2.L));
                     curBlock = block2;
                     P.addVal(pre.L, trueLit);
-                    P.addVal(block2.L, cur.rhs.ent);
+                    P.addVal(block1.L, cur.rhs.ent);
                     curBlock.addInst(P);
                 }
                 cur.ent = res;

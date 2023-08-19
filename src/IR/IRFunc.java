@@ -18,7 +18,7 @@ public class IRFunc extends IRNode {
         name = id;
         retype = type;
         entry = new block("entry", true);
-        suite.add(new block("entry"));
+        suite.add(new block("entry", true));
         firstBlock = suite.get(0).L;
 //        varDef = suite.get(0).stats.listIterator();
     }

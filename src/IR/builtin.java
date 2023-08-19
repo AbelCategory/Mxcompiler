@@ -71,6 +71,7 @@ public class builtin{
         string_substring.addAugment(new reg("s", str));
         string_substring.addAugment(new reg("l", Int));
         string_substring.addAugment(new reg("r", Int));
+        irb.topModule.addFunc(string_substring);
 
         gScope.irf.put("string::parseInt", "string_parseInt");
         IRFunc string_parseInt = new IRFunc("string_parseInt", str, true);
