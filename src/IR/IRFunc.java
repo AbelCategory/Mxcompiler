@@ -58,4 +58,9 @@ public class IRFunc extends IRNode {
         cur.append(")");
         return cur.toString();
     }
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

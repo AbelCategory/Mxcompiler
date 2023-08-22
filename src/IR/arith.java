@@ -39,4 +39,9 @@ public class arith extends statment {
     public String toString() {
         return res.get_name() + " = " + opt.toString().toLowerCase() + " " + res.type.toString() + " " + ls.get_name() + ", " + rs.get_name();
     }
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

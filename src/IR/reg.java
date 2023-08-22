@@ -12,5 +12,4 @@ public class reg extends entity {
 
     @Override public String toString() {return type.toString() + " %" + name + "." + id;}
     @Override public String get_name() {return "%" + name + "." + id;}
-
 }

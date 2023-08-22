@@ -6,7 +6,7 @@ import IR.entity;
 public abstract class exprNode extends ASTNode {
     public Type type;
     public entity ent, ptr;
-    public boolean isLeft = false;
+    public boolean isLeft = false, isSingle = false;
     public boolean arrayOk = false;
 
     public exprNode(position p, Type t) {

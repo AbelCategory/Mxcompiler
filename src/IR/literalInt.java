@@ -10,4 +10,8 @@ public class literalInt extends literal{
     @Override
     public String get_name() {return Long.toString(val);}
 
+    @Override public boolean isInt() {return true;}
+
+    @Override public long retVal() {return val;}
+
 }

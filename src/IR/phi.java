@@ -28,4 +28,9 @@ public class phi extends statment {
         }
         return ret.toString();
     }
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

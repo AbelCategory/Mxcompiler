@@ -12,4 +12,8 @@ public class literalBool extends literal {
         if(((I_Type) type).i_N == 1) return val ? "true" : "false";
         else return val ? "1" : "0";
     }
+
+    @Override public boolean isInt() {return true;}
+
+    @Override public long retVal() {return val ? 1 : 0;}
 }

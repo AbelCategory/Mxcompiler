@@ -20,4 +20,9 @@ public class module extends IRNode {
 
     @Override
     public String toString() {return "";}
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

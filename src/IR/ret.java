@@ -24,4 +24,9 @@ public class ret extends statment {
             return "ret " + retEntity.toString();
         }
     }
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

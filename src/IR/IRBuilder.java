@@ -627,7 +627,14 @@ public class IRBuilder implements ASTVistor {
         cur.rhs.accept(this);
         cur.lhs.isLeft = true;
         cur.lhs.accept(this);
-        curBlock.addInst(new store(toIRType(cur.lhs.type), cur.rhs.ent, cur.lhs.ptr));
+        entity res;
+        if(cur.lhs.type.isBool() && !(cur.lhs.isSingle)) {
+            res = new reg("frombool", intIR);
+            curBlock.addInst(new convert(res, cur.rhs.ent, intIR, boolIR, convert.conv.ZEXT));
+        } else {
+            res = cur.rhs.ent;
+        }
+        curBlock.addInst(new store(toIRType(cur.lhs.type), res, cur.lhs.ptr));
         cur.ent = cur.rhs.ent;
     }
 
@@ -689,6 +696,13 @@ public class IRBuilder implements ASTVistor {
             reg res = new reg("local_var", toIRType(cur.type));
             curBlock.addInst(new load(toIRType(cur.type), res, ptr));
             cur.ent = res;
+            if(cur.type.isBool()) {
+                reg rew = new reg("tobool", boolIR);
+                curBlock.addInst(new convert(rew, res, boolIR, intIR, convert.conv.TRUNC));
+                cur.ent = rew;
+            } else {
+                cur.ent = res;
+            }
         }
     }
 
@@ -709,12 +723,20 @@ public class IRBuilder implements ASTVistor {
         if(!cur.isLeft) {
             reg res = new reg("array", tp);
             curBlock.addInst(new load(tp, res, ptr));
-            cur.ent = res;
+            if(cur.type.isBool()) {
+                reg rew = new reg("tobool", boolIR);
+                curBlock.addInst(new convert(rew, res, boolIR, intIR, convert.conv.TRUNC));
+                cur.ent = rew;
+            } else {
+                cur.ent = res;
+            }
         }
     }
 
     @Override public void visit(varExpNode cur) {
         entity v = currentScope.getVarEntity(cur.name);
+        boolean isMem = false;
+        cur.isSingle = true;
         if(curClass != null && curClass.varDefined(cur.name)) {
             entity This = currentScope.getVarEntity("this");
             String name = curClass.name + "::" + cur.name;
@@ -724,12 +746,20 @@ public class IRBuilder implements ASTVistor {
             reg res = new reg(cur.name, new ptrType(toIRType(currentScope.getVarType(name, null))));
             curBlock.addInst(new getelementptr(res, cur_this, tt, new literalInt(intIR, gScope.getVarIndex(name)), 0));
             v = res;
+            isMem = true;
+            cur.isSingle = false;
         }
         cur.ptr = v;
         if(!cur.isLeft) {
             reg res = new reg("local_var", toIRType(cur.type));
             curBlock.addInst(new load(toIRType(cur.type), res, v));
-            cur.ent = res;
+            if(isMem && cur.type.isBool()) {
+                reg rew = new reg("tobool", boolIR);
+                curBlock.addInst(new convert(rew, res, boolIR, intIR, convert.conv.TRUNC));
+                cur.ent = rew;
+            } else {
+                cur.ent = res;
+            }
         }
     }
 

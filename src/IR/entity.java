@@ -10,4 +10,5 @@ public abstract class entity extends IRNode {
     public String toString() {return type.toString();}
 
     public abstract String get_name();
+    @Override public void accept(IRPass pass) {}
 }

@@ -33,4 +33,9 @@ public class getelementptr extends statment {
         }
         return res.get_name() + " = getelementptr " + t.toString() + ", ptr " + p.get_name() + ", " + sbt.toString();
     }
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

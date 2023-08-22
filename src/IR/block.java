@@ -25,4 +25,9 @@ public class block extends IRNode {
     @Override public String toString() {
         return L.get_name() + ":";
     }
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

@@ -29,4 +29,9 @@ public class call extends statment {
         ret.append(")");
         return ret.toString();
     }
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

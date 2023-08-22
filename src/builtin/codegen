@@ -1,0 +1,1 @@
+llc-15 --march=riscv32 builtin.ll

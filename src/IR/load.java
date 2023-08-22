@@ -10,4 +10,9 @@ public class load extends statment {
         ptr = p;
     }
     @Override public String toString() {return val.get_name() + " = load " + t.toString() + ", ptr " + ptr.get_name();}
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

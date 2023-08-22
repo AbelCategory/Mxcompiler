@@ -51,4 +51,8 @@ public class IRClass extends IRType {
     }
 
     @Override public boolean isConstructor() {return constructor;}
+
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

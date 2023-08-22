@@ -20,4 +20,9 @@ public class convert extends statment {
     public String toString() {
         return res.get_name() + " = " + op.toString().toLowerCase() + " " + ft.toString() + " " + val.get_name() + " to " + tt.toString();
     }
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

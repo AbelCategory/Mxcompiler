@@ -12,4 +12,9 @@ public class store extends statment{
     }
 
     @Override public String toString() {return "store " + t.toString() + " " + val.get_name() + ", ptr " + ptr.get_name();}
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

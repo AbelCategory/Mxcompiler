@@ -10,4 +10,9 @@ public class alloca extends statment {
     }
 
     @Override public String toString() {return e.get_name() + " = alloca " + t.toString();}
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

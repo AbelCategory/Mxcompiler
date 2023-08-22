@@ -26,4 +26,9 @@ public class icmp extends statment {
     @Override public String toString() {
         return res.get_name() + " = icmp " + opt.toString().toLowerCase() + " " + ls.type.toString() + " " + ls.get_name() + ", " + rs.get_name();
     }
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }

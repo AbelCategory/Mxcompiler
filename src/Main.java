@@ -79,9 +79,9 @@ public class Main {
 //        }
     }
     public static void main(String[] args) throws Exception {
-//        onlyLLVM = true;
-//        compile(new FileInputStream("1.mx"), new PrintStream("1.ll"));
-        TestIR.testIR();
+        onlyLLVM = true;
+        compile(new FileInputStream("1.mx"), new PrintStream("1.ll"));
+//        TestIR.testIR();
         /*
         InputStream input = new FileInputStream("1.mx");
 //        InputStream input = System.in;

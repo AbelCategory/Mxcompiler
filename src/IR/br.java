@@ -27,4 +27,9 @@ public class br extends statment {
             return "br " + label1.toString();
         }
     }
+
+    @Override
+    public void accept(IRPass pass) {
+        pass.visit(this);
+    }
 }
