@@ -20,4 +20,8 @@ public class globalVar extends variable {
             return ret + " null";
         }
     }
+
+    public String asm_name() {
+        return name;
+    }
 }

@@ -1,12 +1,20 @@
 package asm;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Block {
     public String name;
+    static int block_cnt = 0;
+    int id;
+    public HashMap<Block, inst> preInst;
     public inst head = null, last = null;
 
     public Block(String name) {
+        id = ++block_cnt;
+        this.name = name + id;
+    }
+
+    public Block(String name, boolean bo) {
         this.name = name;
     }
 
@@ -43,5 +51,9 @@ public class Block {
     @Override
     public String toString() {
         return "." + name;
+    }
+
+    public void addPreBlock(Block blk, inst j) {
+        preInst.put(blk, j);
     }
 }

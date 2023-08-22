@@ -9,6 +9,10 @@ import Error.mxErrorListener;
 import IR.IRBuilder;
 import IR.IRPrinter;
 import IR.module;
+import asm.asmBuilder;
+import asm.asmModule;
+import asm.asmPrinter;
+import asm.registerAllocation;
 import Util.globalScope;
 import Parser.mxParser;
 import Parser.mxLexer;
@@ -64,7 +68,10 @@ public class Main {
                 if(onlyLLVM) {
                     new IRPrinter((PrintStream) output).visit(topModule);
                 } else if(onlyAssembly) {
-
+                    asmBuilder asm = new asmBuilder();
+                    asm.visit(topModule);
+                    asmModule asmTop = asm.topModule;
+                    new registerAllocation().visit(asmTop);
                 }
             }
 
@@ -82,7 +89,7 @@ public class Main {
         onlyLLVM = true;
         compile(new FileInputStream("1.mx"), new PrintStream("1.ll"));
 //        TestIR.testIR();
-        /*
+
         InputStream input = new FileInputStream("1.mx");
 //        InputStream input = System.in;
         OutputStream output = new PrintStream("1.ll");

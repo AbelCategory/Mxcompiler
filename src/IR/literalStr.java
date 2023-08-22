@@ -15,6 +15,10 @@ public class literalStr extends literal {
         return "@.str." + id;
     }
 
+    public String asm_name() {
+        return ".str." + id;
+    }
+
     public String def() {
         StringBuilder str = new StringBuilder();
         int len = 0;
