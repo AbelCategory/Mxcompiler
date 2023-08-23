@@ -1,5 +1,7 @@
 package asm;
 
+import IR.IRPass;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -26,5 +28,9 @@ public class asmModule {
         text = new section("text");
         data = new section("data");
         rodata = new section("rodata");
+    }
+
+    public void accept(asmPass pass) {
+        pass.visit(this);
     }
 }

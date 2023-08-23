@@ -10,12 +10,14 @@ public class asmBuilder implements IRPass {
     public asmModule topModule;
     public asmFunc curFunc;
     public Block curBlock;
-    public phyReg a0, sp, s0, s1;
-    public HashMap<entity, asmReg> regMap;
-    public HashMap<label, Block> blkMap;
+    public phyReg a0, sp, s0, s1, ra;
+    public imm imm_zero = new imm(0);
+    public HashMap<entity, asmReg> regMap = new HashMap<>();
+    public HashMap<label, Block> blkMap = new HashMap<>();
     public asmBuilder() {
         topModule = new asmModule();
         a0 = topModule.regs.get(10);
+        ra = topModule.regs.get(1);
         sp = topModule.regs.get(2);
         s0 = topModule.regs.get(8);
         s1 = topModule.regs.get(9);
@@ -26,6 +28,8 @@ public class asmBuilder implements IRPass {
         mod.cls.forEach(c -> c.accept(this));
         mod.func.forEach(f -> f.accept(this));
     }
+
+    private boolean isImm(long x) {return x >= -2048 && x <= 2047;}
 
     public asmReg getReg(entity x) {
         if(x instanceof literal t) {
@@ -59,9 +63,13 @@ public class asmBuilder implements IRPass {
     }
 
     @Override public void visit(IRFunc fun) {
+        if(fun.declare)  return;
         asmFunc f = new asmFunc(fun.name);
+        f.addLocalVar(ra);
+        f.addLocalVar(s0);
         topModule.text.addFunc(f);
         curFunc = f;
+        curBlock = curFunc.entry;
         for(int i = 0; i < Math.min(8, fun.para.size()); ++i) {
             entity p = fun.para.get(i);
             virtualReg reg = new virtualReg(curFunc.getVir());
@@ -72,7 +80,7 @@ public class asmBuilder implements IRPass {
         for(int i = 8; i < fun.para.size(); ++i) {
             entity p = fun.para.get(i);
             virtualReg reg = new virtualReg(curFunc.getVir());
-            curBlock.addInst(new loadInst(4, reg, sp, new imm(bytes)));
+            curBlock.addInst(new loadInst(4, reg, s0, new imm(bytes)));
             regMap.put(p, reg);
             bytes += 4;
         }
@@ -89,13 +97,13 @@ public class asmBuilder implements IRPass {
     }
 
     private void SBinary(entity ls, entity rs, binaryInst.binaryType op, virtualReg res) {
-        if(ls instanceof literal t) {
+        if((ls instanceof literal t) && isImm(t.retVal())) {
             binaryInst ins = new binaryInst(res, getReg(rs), new imm(t.retVal()), op);
             ins.imm = true;
             curBlock.addInst(ins);
         } else {
             binaryInst ins;
-            if(rs instanceof literal t) {
+            if((rs instanceof literal t) && isImm(t.retVal())) {
                 ins = new binaryInst(res, getReg(ls), new imm(t.retVal()), op);
                 ins.imm = true;
             } else {
@@ -106,7 +114,7 @@ public class asmBuilder implements IRPass {
     }
 
     private void UBinary(entity ls, entity rs, binaryInst.binaryType op, virtualReg res) {
-        if(rs instanceof literal t) {
+        if((rs instanceof literal t) && isImm(t.retVal())) {
             binaryInst ins = new binaryInst(res, getReg(ls), new imm(t.retVal()), op);
             ins.imm = true;
             curBlock.addInst(ins);
@@ -167,24 +175,40 @@ public class asmBuilder implements IRPass {
     }
 
     @Override public void visit(alloca x) {
-
+        virtualReg rg = new virtualReg(curFunc.getVir());
+        regMap.put(x.e, rg);
+        curFunc.addLocalVar(rg);
     }
 
     @Override public void visit(load x) {
         virtualReg res = new virtualReg(curFunc.getVir());
-        if(x.ptr instanceof globalVar t) {
-            curBlock.addInst(new loadInst(4, res, t.asm_name()));
+        if(x.ptr instanceof globalVar) {
+            asmReg rs = getReg(x.ptr);
+            curBlock.addInst(new loadInst(4, res, rs, imm_zero));
+//            curBlock.addInst(new loadInst(4, res, t.asm_name()));
         } else {
             asmReg rs = getReg(x.ptr);
+            if(curFunc.inStack(rs)) {
+                curBlock.addInst(new mvInst(res, rs));
+            } else {
+                curBlock.addInst(new loadInst(4, res, rs, imm_zero));
+            }
 
         }
         regMap.put(x.val, res);
     }
     @Override public void visit(store x) {
-        if(x.ptr instanceof globalVar t) {
-            curBlock.addInst(new storeInst(4, getReg(x.val), t.asm_name()));
+        if(x.ptr instanceof globalVar) {
+            asmReg rs = getReg(x.ptr), val = getReg(x.val);
+            curBlock.addInst(new loadInst(4, rs, val, imm_zero));
+//            curBlock.addInst(new storeInst(4, getReg(x.val), t.asm_name()));
         } else {
-
+            asmReg rs = getReg(x.ptr), val = getReg(x.val);
+            if(curFunc.inStack(rs)) {
+                curBlock.addInst(new mvInst(rs, val));
+            } else {
+                curBlock.addInst(new storeInst(4, rs, val, imm_zero));
+            }
         }
     }
     @Override public void visit(br x) {
@@ -249,7 +273,7 @@ public class asmBuilder implements IRPass {
         if(x.idx.size() == 1) {
             entity id = x.idx.get(0);
             virtualReg p = new virtualReg(curFunc.getVir());
-            if(id instanceof literal t) {
+            if((id instanceof literal t) && isImm(t.retVal())) {
                 curBlock.addInst(new liInst(p, new imm(t.retVal() * 4)));
                 curBlock.addInst(new binaryInst(res, getReg(x.p), p, binaryInst.binaryType.ADD));
             } else {
@@ -263,7 +287,9 @@ public class asmBuilder implements IRPass {
             entity id = x.idx.get(1);
             int pos = (int) (((literalInt) id).val * 4);
             if(pos != 0) {
-                binaryInst b = new binaryInst(res, getReg(x.p), new imm(pos), binaryInst.binaryType.ADD);
+                operand Pos = isImm(pos) ? new imm(pos) : new virtualReg(curFunc.getVir());
+                if(!isImm(pos)) curBlock.addInst(new liInst(Pos, new imm(pos)));
+                binaryInst b = new binaryInst(res, getReg(x.p), Pos, binaryInst.binaryType.ADD);
                 b.imm = true;
                 curBlock.addInst(b);
                 regMap.put(x.res, res);

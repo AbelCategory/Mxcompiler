@@ -44,4 +44,9 @@ public class loadInst extends inst {
             return "\t" + op.toString().toLowerCase() + "\t" + rd + ", " + im + "(" + rs + ")";
         }
     }
+
+    @Override
+    public void accept(asmPass pass) {
+        pass.visit(this);
+    }
 }

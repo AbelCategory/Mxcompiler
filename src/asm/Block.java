@@ -1,12 +1,14 @@
 package asm;
 
+import IR.IRPass;
+
 import java.util.HashMap;
 
 public class Block {
     public String name;
     static int block_cnt = 0;
     int id;
-    public HashMap<Block, inst> preInst;
+    public HashMap<Block, inst> preInst = new HashMap<>();
     public inst head = null, last = null;
 
     public Block(String name) {
@@ -55,5 +57,19 @@ public class Block {
 
     public void addPreBlock(Block blk, inst j) {
         preInst.put(blk, j);
+    }
+
+    public void addTop(inst i) {
+        if(head == null) {
+            head = last = i;
+        } else {
+            head.prev = i;
+            i.next = head;
+            head = i;
+        }
+    }
+
+    public void accept(asmPass pass) {
+        pass.visit(this);
     }
 }

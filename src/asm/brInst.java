@@ -31,4 +31,9 @@ public class brInst extends inst {
             return "\t" + op.toString().toLowerCase() + "\t" + rs1 + ", " + rs2 + ", " + label;
         }
     }
+
+    @Override
+    public void accept(asmPass pass) {
+        pass.visit(this);
+    }
 }

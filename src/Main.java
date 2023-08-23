@@ -71,7 +71,8 @@ public class Main {
                     asmBuilder asm = new asmBuilder();
                     asm.visit(topModule);
                     asmModule asmTop = asm.topModule;
-                    new registerAllocation().visit(asmTop);
+                    new registerAllocation(asmTop).visit(asmTop);
+                    new asmPrinter((PrintStream) output).visit(asmTop);
                 }
             }
 
@@ -86,15 +87,16 @@ public class Main {
 //        }
     }
     public static void main(String[] args) throws Exception {
-        onlyLLVM = true;
-        compile(new FileInputStream("1.mx"), new PrintStream("1.ll"));
+//        compile(new FileInputStream("1.mx"), new PrintStream("1.ll"));
 //        TestIR.testIR();
 
         InputStream input = new FileInputStream("1.mx");
 //        InputStream input = System.in;
-        OutputStream output = new PrintStream("1.ll");
+//        OutputStream output = new PrintStream("1.ll");
+        OutputStream output = new PrintStream("1.s");
         int n = args.length;
-        onlyLLVM = true;
+        onlyLLVM = false;
+        onlyAssembly = true;
         for(int i = 0; i < n; ++i) {
             switch (args[i]) {
                 case "-fsyntax-only" -> onlySemantic = true;

@@ -1,5 +1,7 @@
 package asm;
 
+import IR.IRPass;
+
 public class globalData {
     public enum dataType {
         ASCIZ, WORD, BYTE
@@ -44,5 +46,9 @@ public class globalData {
             return ret + val + "\t.size\t" + name + ", " + get_len(str_val);
         }
 //        String ff = ret + "." + t.toString().toLowerCase() + "\n";
+    }
+
+    public void accept(asmPass pass) {
+        pass.visit(this);
     }
 }

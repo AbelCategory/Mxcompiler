@@ -1,5 +1,7 @@
 package asm;
 
+import IR.IRPass;
+
 import java.util.ArrayList;
 
 public class section {
@@ -23,5 +25,9 @@ public class section {
     @Override
     public String toString() {
         return "\t.section\t" + "." + name;
+    }
+
+    public void accept(asmPass pass) {
+        pass.visit(this);
     }
 }

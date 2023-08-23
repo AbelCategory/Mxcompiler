@@ -30,4 +30,9 @@ public class cmpInst extends inst {
             return "\t" + op.toString().toLowerCase() + "\t" + rd + ", " + rs1 + ", " + rs2;
         }
     }
+
+    @Override
+    public void accept(asmPass pass) {
+        pass.visit(this);
+    }
 }

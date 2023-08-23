@@ -13,4 +13,9 @@ public class laInst extends inst {
     public String toString() {
         return "\tla\t" + rd + ", " + name;
     }
+
+    @Override
+    public void accept(asmPass pass) {
+        pass.visit(this);
+    }
 }

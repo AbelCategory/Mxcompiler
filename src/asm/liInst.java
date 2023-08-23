@@ -8,4 +8,9 @@ public class liInst extends inst {
         this.rd = rd;
         this.i = i;
     }
+
+    @Override
+    public void accept(asmPass pass) {
+        pass.visit(this);
+    }
 }

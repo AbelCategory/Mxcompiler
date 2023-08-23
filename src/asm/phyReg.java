@@ -5,4 +5,9 @@ public class phyReg extends asmReg {
     public phyReg(String id) {
         name = id;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

@@ -17,4 +17,6 @@ public interface asmPass {
     void visit(loadInst load);
     void visit(mvInst mv);
     void visit(storeInst store);
+
+    void visit(retInst retInst);
 }

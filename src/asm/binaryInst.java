@@ -1,5 +1,7 @@
 package asm;
 
+import IR.IRPass;
+
 public class binaryInst extends inst {
     public enum binaryType {
         ADD, SUB, SLL, XOR, SRL, SRA, OR, AND,
@@ -15,10 +17,18 @@ public class binaryInst extends inst {
         this.rs1 = rs1;
         this.rs2 = rs2;
         op = opt;
+        if(rs2 instanceof imm) imm = true;
     }
 
     @Override
     public String toString() {
         return "\t" + op.toString().toLowerCase() + (imm ? "i\t" : "\t") + rd + ", " + rs1 + ", " + rs2;
     }
+
+    @Override
+    public void accept(asmPass pass) {
+        pass.visit(this);
+    }
+
+
 }

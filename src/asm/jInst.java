@@ -10,4 +10,9 @@ public class jInst extends inst {
     public String toString() {
         return "\tj\t" + label;
     }
+
+    @Override
+    public void accept(asmPass pass) {
+        pass.visit(this);
+    }
 }

@@ -11,4 +11,9 @@ public class mvInst extends inst {
     public String toString() {
         return "\tmv\t" + rd + ", " + rs;
     }
+
+    @Override
+    public void accept(asmPass pass) {
+        pass.visit(this);
+    }
 }

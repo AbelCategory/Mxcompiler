@@ -11,24 +11,19 @@ array_malloc:                           # @array_malloc
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	lw	a0, -12(s0)
+	sw	a0, 8(sp)
+	lw	a0, 8(sp)
 	slli	a0, a0, 2
 	addi	a0, a0, 4
-	call	malloc@plt
-	sw	a0, -16(s0)
-	lw	a0, -12(s0)
-	lw	a1, -16(s0)
+	call	malloc
+	sw	a0, 4(sp)
+	lw	a0, 8(sp)
+	lw	a1, 4(sp)
 	sw	a0, 0(a1)
-	lw	a0, -16(s0)
+	lw	a0, 4(sp)
 	addi	a0, a0, 4
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end0:
@@ -44,18 +39,13 @@ class_malloc:                           # @class_malloc
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	lw	a0, -12(s0)
-	call	malloc@plt
-	sw	a0, -16(s0)
-	lw	a0, -16(s0)
+	sw	a0, 8(sp)
+	lw	a0, 8(sp)
+	call	malloc
+	sw	a0, 4(sp)
+	lw	a0, 4(sp)
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end1:
@@ -71,18 +61,13 @@ print:                                  # @print
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	lw	a1, -12(s0)
+	sw	a0, 8(sp)
+	lw	a1, 8(sp)
 	lui	a0, %hi(.L.str)
 	addi	a0, a0, %lo(.L.str)
-	call	printf@plt
+	call	printf
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end2:
@@ -98,18 +83,13 @@ println:                                # @println
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	lw	a1, -12(s0)
+	sw	a0, 8(sp)
+	lw	a1, 8(sp)
 	lui	a0, %hi(.L.str.1)
 	addi	a0, a0, %lo(.L.str.1)
-	call	printf@plt
+	call	printf
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end3:
@@ -125,18 +105,13 @@ printInt:                               # @printInt
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	lw	a1, -12(s0)
+	sw	a0, 8(sp)
+	lw	a1, 8(sp)
 	lui	a0, %hi(.L.str.2)
 	addi	a0, a0, %lo(.L.str.2)
-	call	printf@plt
+	call	printf
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end4:
@@ -152,18 +127,13 @@ printlnInt:                             # @printlnInt
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	lw	a1, -12(s0)
+	sw	a0, 8(sp)
+	lw	a1, 8(sp)
 	lui	a0, %hi(.L.str.3)
 	addi	a0, a0, %lo(.L.str.3)
-	call	printf@plt
+	call	printf
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end5:
@@ -179,18 +149,13 @@ getInt:                                 # @getInt
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
 	lui	a0, %hi(.L.str.2)
 	addi	a0, a0, %lo(.L.str.2)
-	addi	a1, s0, -12
-	call	__isoc99_scanf@plt
-	lw	a0, -12(s0)
+	addi	a1, sp, 8
+	call	scanf
+	lw	a0, 8(sp)
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end6:
@@ -206,21 +171,16 @@ getString:                              # @getString
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
 	li	a0, 256
-	call	malloc@plt
-	sw	a0, -12(s0)
-	lw	a1, -12(s0)
+	call	malloc
+	sw	a0, 8(sp)
+	lw	a1, 8(sp)
 	lui	a0, %hi(.L.str)
 	addi	a0, a0, %lo(.L.str)
-	call	__isoc99_scanf@plt
-	lw	a0, -12(s0)
+	call	scanf
+	lw	a0, 8(sp)
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end7:
@@ -233,101 +193,22 @@ getString:                              # @getString
 toString:                               # @toString
 	.cfi_startproc
 # %bb.0:
-	addi	sp, sp, -32
-	.cfi_def_cfa_offset 32
-	sw	ra, 28(sp)                      # 4-byte Folded Spill
-	sw	s0, 24(sp)                      # 4-byte Folded Spill
+	addi	sp, sp, -16
+	.cfi_def_cfa_offset 16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 32
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	sw	zero, -16(s0)
-	sw	zero, -20(s0)
-	sw	zero, -24(s0)
-	li	a0, 11
-	call	malloc@plt
-	sw	a0, -28(s0)
-	lw	a0, -12(s0)
-	bgez	a0, .LBB8_2
-	j	.LBB8_1
-.LBB8_1:
-	lw	a0, -12(s0)
-	neg	a0, a0
-	sw	a0, -12(s0)
-	li	a0, 1
-	sw	a0, -20(s0)
-	j	.LBB8_2
-.LBB8_2:
-	j	.LBB8_3
-.LBB8_3:                                # =>This Inner Loop Header: Depth=1
-	lw	a0, -12(s0)
-	li	a1, 10
-	call	__modsi3@plt
-	addi	a0, a0, 48
-	lw	a1, -28(s0)
-	lw	a2, -16(s0)
-	addi	a3, a2, 1
-	sw	a3, -16(s0)
-	add	a1, a1, a2
-	sb	a0, 0(a1)
-	lw	a0, -12(s0)
-	li	a1, 10
-	call	__divsi3@plt
-	sw	a0, -12(s0)
-	j	.LBB8_4
-.LBB8_4:                                #   in Loop: Header=BB8_3 Depth=1
-	lw	a0, -12(s0)
-	bnez	a0, .LBB8_3
-	j	.LBB8_5
-.LBB8_5:
-	lw	a0, -16(s0)
-	lw	a1, -20(s0)
-	add	a0, a0, a1
-	addi	a0, a0, 1
-	call	malloc@plt
-	sw	a0, -32(s0)
-	lw	a0, -20(s0)
-	beqz	a0, .LBB8_7
-	j	.LBB8_6
-.LBB8_6:
-	lw	a0, -32(s0)
-	lw	a1, -24(s0)
-	addi	a2, a1, 1
-	sw	a2, -24(s0)
-	add	a0, a0, a1
-	li	a1, 45
-	sb	a1, 0(a0)
-	j	.LBB8_7
-.LBB8_7:
-	j	.LBB8_8
-.LBB8_8:                                # =>This Inner Loop Header: Depth=1
-	lw	a0, -28(s0)
-	lw	a1, -16(s0)
-	addi	a1, a1, -1
-	sw	a1, -16(s0)
-	add	a0, a0, a1
-	lb	a0, 0(a0)
-	lw	a1, -32(s0)
-	lw	a2, -24(s0)
-	addi	a3, a2, 1
-	sw	a3, -24(s0)
-	add	a1, a1, a2
-	sb	a0, 0(a1)
-	j	.LBB8_9
-.LBB8_9:                                #   in Loop: Header=BB8_8 Depth=1
-	lw	a0, -16(s0)
-	bnez	a0, .LBB8_8
-	j	.LBB8_10
-.LBB8_10:
-	lw	a0, -32(s0)
-	lw	a1, -24(s0)
-	add	a0, a0, a1
-	sb	zero, 0(a0)
-	lw	a0, -32(s0)
-	lw	ra, 28(sp)                      # 4-byte Folded Reload
-	lw	s0, 24(sp)                      # 4-byte Folded Reload
-	addi	sp, sp, 32
+	sw	a0, 8(sp)
+	li	a0, 20
+	call	malloc
+	sw	a0, 4(sp)
+	lw	a0, 4(sp)
+	lw	a2, 8(sp)
+	lui	a1, %hi(.L.str.2)
+	addi	a1, a1, %lo(.L.str.2)
+	call	sprintf
+	lw	a0, 4(sp)
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
 	ret
 .Lfunc_end8:
 	.size	toString, .Lfunc_end8-toString
@@ -342,16 +223,11 @@ string_length:                          # @string_length
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	lw	a0, -12(s0)
-	call	strlen@plt
+	sw	a0, 8(sp)
+	lw	a0, 8(sp)
+	call	strlen
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end9:
@@ -367,54 +243,51 @@ string_substring:                       # @string_substring
 	addi	sp, sp, -32
 	.cfi_def_cfa_offset 32
 	sw	ra, 28(sp)                      # 4-byte Folded Spill
-	sw	s0, 24(sp)                      # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 32
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	sw	a1, -16(s0)
-	sw	a2, -20(s0)
-	lw	a0, -20(s0)
-	lw	a1, -16(s0)
+	sw	a0, 24(sp)
+	sw	a1, 20(sp)
+	sw	a2, 16(sp)
+	lw	a0, 16(sp)
+	lw	a1, 20(sp)
 	sub	a0, a0, a1
 	addi	a0, a0, 1
-	call	malloc@plt
-	sw	a0, -24(s0)
-	sw	zero, -28(s0)
-	lw	a0, -16(s0)
-	sw	a0, -32(s0)
+	call	malloc
+	sw	a0, 12(sp)
+	li	a0, 0
+	sw	a0, 8(sp)
+	lw	a0, 20(sp)
+	sw	a0, 4(sp)
 	j	.LBB10_1
 .LBB10_1:                               # =>This Inner Loop Header: Depth=1
-	lw	a0, -32(s0)
-	lw	a1, -20(s0)
+	lw	a0, 4(sp)
+	lw	a1, 16(sp)
 	bge	a0, a1, .LBB10_4
 	j	.LBB10_2
 .LBB10_2:                               #   in Loop: Header=BB10_1 Depth=1
-	lw	a0, -12(s0)
-	lw	a1, -32(s0)
+	lw	a0, 24(sp)
+	lw	a1, 4(sp)
 	add	a0, a0, a1
 	lb	a0, 0(a0)
-	lw	a1, -24(s0)
-	lw	a2, -28(s0)
+	lw	a1, 12(sp)
+	lw	a2, 8(sp)
 	addi	a3, a2, 1
-	sw	a3, -28(s0)
+	sw	a3, 8(sp)
 	add	a1, a1, a2
 	sb	a0, 0(a1)
 	j	.LBB10_3
 .LBB10_3:                               #   in Loop: Header=BB10_1 Depth=1
-	lw	a0, -32(s0)
+	lw	a0, 4(sp)
 	addi	a0, a0, 1
-	sw	a0, -32(s0)
+	sw	a0, 4(sp)
 	j	.LBB10_1
 .LBB10_4:
-	lw	a0, -24(s0)
-	lw	a1, -28(s0)
-	add	a0, a0, a1
-	sb	zero, 0(a0)
-	lw	a0, -24(s0)
+	lw	a0, 12(sp)
+	lw	a1, 8(sp)
+	add	a1, a0, a1
+	li	a0, 0
+	sb	a0, 0(a1)
+	lw	a0, 12(sp)
 	lw	ra, 28(sp)                      # 4-byte Folded Reload
-	lw	s0, 24(sp)                      # 4-byte Folded Reload
 	addi	sp, sp, 32
 	ret
 .Lfunc_end10:
@@ -429,17 +302,9 @@ array_size:                             # @array_size
 # %bb.0:
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
-	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
-	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	lw	a0, -12(s0)
+	sw	a0, 12(sp)
+	lw	a0, 12(sp)
 	lw	a0, -4(a0)
-	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end11:
@@ -452,80 +317,19 @@ array_size:                             # @array_size
 string_parseInt:                        # @string_parseInt
 	.cfi_startproc
 # %bb.0:
-	addi	sp, sp, -32
-	.cfi_def_cfa_offset 32
-	sw	ra, 28(sp)                      # 4-byte Folded Spill
-	sw	s0, 24(sp)                      # 4-byte Folded Spill
+	addi	sp, sp, -16
+	.cfi_def_cfa_offset 16
+	sw	ra, 12(sp)                      # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 32
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	sw	zero, -16(s0)
-	sw	zero, -20(s0)
-	lw	a0, -12(s0)
-	lb	a0, 0(a0)
-	li	a1, 45
-	bne	a0, a1, .LBB12_2
-	j	.LBB12_1
-.LBB12_1:
-	li	a0, 1
-	sw	a0, -20(s0)
-	j	.LBB12_2
-.LBB12_2:
-	lw	a0, -12(s0)
-	sw	a0, -24(s0)
-	j	.LBB12_3
-.LBB12_3:                               # =>This Inner Loop Header: Depth=1
-	lw	a0, -24(s0)
-	lbu	a0, 0(a0)
-	beqz	a0, .LBB12_9
-	j	.LBB12_4
-.LBB12_4:                               #   in Loop: Header=BB12_3 Depth=1
-	lw	a0, -24(s0)
-	lb	a0, 0(a0)
-	li	a1, 47
-	blt	a1, a0, .LBB12_7
-	j	.LBB12_5
-.LBB12_5:                               #   in Loop: Header=BB12_3 Depth=1
-	lw	a0, -24(s0)
-	lb	a0, 0(a0)
-	li	a1, 58
-	blt	a0, a1, .LBB12_7
-	j	.LBB12_6
-.LBB12_6:
-	j	.LBB12_10
-.LBB12_7:                               #   in Loop: Header=BB12_3 Depth=1
-	lw	a0, -16(s0)
-	li	a1, 10
-	call	__mulsi3@plt
-	lw	a1, -24(s0)
-	lb	a1, 0(a1)
-	add	a0, a0, a1
-	addi	a0, a0, -48
-	sw	a0, -16(s0)
-	j	.LBB12_8
-.LBB12_8:                               #   in Loop: Header=BB12_3 Depth=1
-	lw	a0, -24(s0)
-	addi	a0, a0, 1
-	sw	a0, -24(s0)
-	j	.LBB12_3
-.LBB12_9:                               # %.loopexit
-	j	.LBB12_10
-.LBB12_10:
-	lw	a0, -20(s0)
-	beqz	a0, .LBB12_12
-	j	.LBB12_11
-.LBB12_11:
-	lw	a0, -16(s0)
-	neg	a0, a0
-	sw	a0, -16(s0)
-	j	.LBB12_12
-.LBB12_12:
-	lw	a0, -16(s0)
-	lw	ra, 28(sp)                      # 4-byte Folded Reload
-	lw	s0, 24(sp)                      # 4-byte Folded Reload
-	addi	sp, sp, 32
+	sw	a0, 8(sp)
+	lw	a0, 8(sp)
+	lui	a1, %hi(.L.str.2)
+	addi	a1, a1, %lo(.L.str.2)
+	addi	a2, sp, 4
+	call	sscanf
+	lw	a0, 4(sp)
+	lw	ra, 12(sp)                      # 4-byte Folded Reload
+	addi	sp, sp, 16
 	ret
 .Lfunc_end12:
 	.size	string_parseInt, .Lfunc_end12-string_parseInt
@@ -539,20 +343,12 @@ string_ord:                             # @string_ord
 # %bb.0:
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
-	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
-	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	sw	a1, -16(s0)
-	lw	a0, -12(s0)
-	lw	a1, -16(s0)
+	sw	a0, 12(sp)
+	sw	a1, 8(sp)
+	lw	a0, 12(sp)
+	lw	a1, 8(sp)
 	add	a0, a0, a1
 	lb	a0, 0(a0)
-	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end13:
@@ -568,34 +364,28 @@ string_add:                             # @string_add
 	addi	sp, sp, -32
 	.cfi_def_cfa_offset 32
 	sw	ra, 28(sp)                      # 4-byte Folded Spill
-	sw	s0, 24(sp)                      # 4-byte Folded Spill
-	sw	s1, 20(sp)                      # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	.cfi_offset s1, -12
-	addi	s0, sp, 32
-	.cfi_def_cfa s0, 0
-	sw	a0, -16(s0)
-	sw	a1, -20(s0)
-	lw	a0, -16(s0)
-	call	strlen@plt
-	mv	s1, a0
-	lw	a0, -20(s0)
-	call	strlen@plt
-	add	a0, s1, a0
+	sw	a0, 24(sp)
+	sw	a1, 20(sp)
+	lw	a0, 24(sp)
+	call	strlen
+	sw	a0, 12(sp)                      # 4-byte Folded Spill
+	lw	a0, 20(sp)
+	call	strlen
+	mv	a1, a0
+	lw	a0, 12(sp)                      # 4-byte Folded Reload
+	add	a0, a0, a1
 	addi	a0, a0, 1
-	call	malloc@plt
-	sw	a0, -24(s0)
-	lw	a0, -24(s0)
-	lw	a1, -16(s0)
-	call	strcpy@plt
-	lw	a0, -24(s0)
-	lw	a1, -20(s0)
-	call	strcat@plt
-	lw	a0, -24(s0)
+	call	malloc
+	sw	a0, 16(sp)
+	lw	a0, 16(sp)
+	lw	a1, 24(sp)
+	call	strcpy
+	lw	a0, 16(sp)
+	lw	a1, 20(sp)
+	call	strcat
+	lw	a0, 16(sp)
 	lw	ra, 28(sp)                      # 4-byte Folded Reload
-	lw	s0, 24(sp)                      # 4-byte Folded Reload
-	lw	s1, 20(sp)                      # 4-byte Folded Reload
 	addi	sp, sp, 32
 	ret
 .Lfunc_end14:
@@ -611,19 +401,14 @@ string_eq:                              # @string_eq
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	sw	a1, -16(s0)
-	lw	a0, -12(s0)
-	lw	a1, -16(s0)
-	call	strcmp@plt
+	sw	a0, 8(sp)
+	sw	a1, 4(sp)
+	lw	a0, 8(sp)
+	lw	a1, 4(sp)
+	call	strcmp
 	seqz	a0, a0
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end15:
@@ -639,19 +424,14 @@ string_neq:                             # @string_neq
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	sw	a1, -16(s0)
-	lw	a0, -12(s0)
-	lw	a1, -16(s0)
-	call	strcmp@plt
+	sw	a0, 8(sp)
+	sw	a1, 4(sp)
+	lw	a0, 8(sp)
+	lw	a1, 4(sp)
+	call	strcmp
 	snez	a0, a0
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end16:
@@ -667,19 +447,14 @@ string_lt:                              # @string_lt
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	sw	a1, -16(s0)
-	lw	a0, -12(s0)
-	lw	a1, -16(s0)
-	call	strcmp@plt
+	sw	a0, 8(sp)
+	sw	a1, 4(sp)
+	lw	a0, 8(sp)
+	lw	a1, 4(sp)
+	call	strcmp
 	srli	a0, a0, 31
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end17:
@@ -695,19 +470,14 @@ string_le:                              # @string_le
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	sw	a1, -16(s0)
-	lw	a0, -12(s0)
-	lw	a1, -16(s0)
-	call	strcmp@plt
+	sw	a0, 8(sp)
+	sw	a1, 4(sp)
+	lw	a0, 8(sp)
+	lw	a1, 4(sp)
+	call	strcmp
 	slti	a0, a0, 1
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end18:
@@ -723,19 +493,16 @@ string_gt:                              # @string_gt
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	sw	a1, -16(s0)
-	lw	a0, -12(s0)
-	lw	a1, -16(s0)
-	call	strcmp@plt
-	sgtz	a0, a0
+	sw	a0, 8(sp)
+	sw	a1, 4(sp)
+	lw	a0, 8(sp)
+	lw	a1, 4(sp)
+	call	strcmp
+	mv	a1, a0
+	li	a0, 0
+	slt	a0, a0, a1
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end19:
@@ -751,20 +518,15 @@ string_ge:                              # @string_ge
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
 	sw	ra, 12(sp)                      # 4-byte Folded Spill
-	sw	s0, 8(sp)                       # 4-byte Folded Spill
 	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	addi	s0, sp, 16
-	.cfi_def_cfa s0, 0
-	sw	a0, -12(s0)
-	sw	a1, -16(s0)
-	lw	a0, -12(s0)
-	lw	a1, -16(s0)
-	call	strcmp@plt
+	sw	a0, 8(sp)
+	sw	a1, 4(sp)
+	lw	a0, 8(sp)
+	lw	a1, 4(sp)
+	call	strcmp
 	not	a0, a0
 	srli	a0, a0, 31
 	lw	ra, 12(sp)                      # 4-byte Folded Reload
-	lw	s0, 8(sp)                       # 4-byte Folded Reload
 	addi	sp, sp, 16
 	ret
 .Lfunc_end20:

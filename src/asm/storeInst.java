@@ -42,4 +42,9 @@ public class storeInst extends inst {
             return "\t" + op.toString().toLowerCase() + "\t" + rs1 + ", " + im + "(" + rs2 + ")";
         }
     }
+
+    @Override
+    public void accept(asmPass pass) {
+        pass.visit(this);
+    }
 }

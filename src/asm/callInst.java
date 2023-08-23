@@ -10,4 +10,9 @@ public class callInst extends inst {
     public String toString() {
         return "\tcall\t" + name;
     }
+
+    @Override
+    public void accept(asmPass pass) {
+        pass.visit(this);
+    }
 }
