@@ -5,4 +5,6 @@ public class virtualReg extends asmReg {
     public virtualReg(int index) {
         this.index = index;
     }
+
+    public String toString() {return "%" + index;}
 }

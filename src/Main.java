@@ -38,7 +38,7 @@ public class Main {
     }
 
 
-    public static void compile(InputStream input, OutputStream output) throws Exception{
+    public static void compile(InputStream input, OutputStream output1, OutputStream output2) throws Exception{
 //        InputStream input = new FileInputStream(name);
 //        InputStream input = System.in;
         System.err.println("Compile_begin");
@@ -66,18 +66,21 @@ public class Main {
                 module topModule = irBuilder.topModule;
                 System.err.println("IR builder OK");
                 if(onlyLLVM) {
-                    new IRPrinter((PrintStream) output).visit(topModule);
-                } else if(onlyAssembly) {
+                    new IRPrinter((PrintStream) output1).visit(topModule);
+                }
+                if(onlyAssembly) {
                     asmBuilder asm = new asmBuilder();
                     asm.visit(topModule);
+                    System.err.println("ASM builder OK");
                     asmModule asmTop = asm.topModule;
                     new registerAllocation(asmTop).visit(asmTop);
-                    new asmPrinter((PrintStream) output).visit(asmTop);
+                    System.err.println("Register allocation OK");
+                    new asmPrinter((PrintStream) output2).visit(asmTop);
                 }
             }
 
         } catch (error er) {
-            System.err.println(er.toString());
+            System.err.println(er);
 //            ok = false;
             throw new RuntimeException();
         }
@@ -92,10 +95,10 @@ public class Main {
 
         InputStream input = new FileInputStream("1.mx");
 //        InputStream input = System.in;
-//        OutputStream output = new PrintStream("1.ll");
-        OutputStream output = new PrintStream("1.s");
+        OutputStream IROutput = new PrintStream("1.ll");
+        OutputStream ASMoutput = new PrintStream("1.s");
         int n = args.length;
-        onlyLLVM = false;
+        onlyLLVM = true;
         onlyAssembly = true;
         for(int i = 0; i < n; ++i) {
             switch (args[i]) {
@@ -105,7 +108,7 @@ public class Main {
             }
         }
 //        boolean isSemantic =
-        compile(input, output);
+        compile(input, IROutput, ASMoutput);
 //        compile("testcases/sema/misc-package/misc-6.mx");
 //        File justList = new File("testcases/sema/judgelist.txt");
 //        FileReader rd = new FileReader(justList);

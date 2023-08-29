@@ -1,5 +1,7 @@
 package asm;
 
+import java.util.ArrayList;
+
 public class registerAllocation implements asmPass {
     public phyReg[] T = new phyReg[7];
     public phyReg s0, sp, t0, t1, t2, ra;
@@ -100,9 +102,11 @@ public class registerAllocation implements asmPass {
     @Override
     public void visit(Block blk) {
         curBlock = blk;
+        ArrayList<inst> ins = new ArrayList<>();
         for(var it = blk.head; it != null; it = it.next) {
-            it.accept(this);
+            ins.add(it);
         }
+        ins.forEach(it -> it.accept(this));
     }
 
     @Override

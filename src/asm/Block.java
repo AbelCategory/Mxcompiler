@@ -46,13 +46,13 @@ public class Block {
             last = j;
         } else {
             i.next.prev = j; j.next = i.prev;
-            i.prev = j; j.next = i;
+            i.next = j; j.prev = i;
         }
     }
 
     @Override
     public String toString() {
-        return "." + name;
+        return "." + name + ":";
     }
 
     public void addPreBlock(Block blk, inst j) {

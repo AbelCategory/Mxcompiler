@@ -18,6 +18,10 @@ public class asmFunc {
 //        addLocalVar();
     }
 
+    public void addBlock(Block b) {
+        st.add(b);
+    }
+
     public int getVir() {return vir++;}
 
     public boolean inStack(asmReg x) {return stack.containsKey(x);}
@@ -33,7 +37,7 @@ public class asmFunc {
     }
 
     public String endString() {
-        return "\t.Lfunc_end" + fun_id + ":\n" + "\t.size\t" + name + ", .Lfunc_end" + fun_id + "-" + name;
+        return ".Lfunc_end" + fun_id + ":\n" + "\t.size\t" + name + ", .Lfunc_end" + fun_id + "-" + name;
     }
 
     public void addLocalVar(asmReg rg) {

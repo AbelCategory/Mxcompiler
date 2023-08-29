@@ -10,6 +10,11 @@ public class liInst extends inst {
     }
 
     @Override
+    public String toString() {
+        return "\tli\t" + rd + ", " + i;
+    }
+
+    @Override
     public void accept(asmPass pass) {
         pass.visit(this);
     }

@@ -48,7 +48,7 @@ public class asmBuilder implements IRPass {
 
     public Block getASMBlock(label x) {
         if(!blkMap.containsKey(x)) {
-            Block blk = new Block(x.name);
+            Block blk = new Block("__LBB" + curFunc.fun_id + "_");
             blkMap.put(x, blk);
         }
         return blkMap.get(x);
@@ -86,6 +86,10 @@ public class asmBuilder implements IRPass {
         }
         blkMap = new HashMap<>();
         blkMap.put(fun.suite.get(0).L, f.st.get(0));
+        for(int i = 1; i < fun.suite.size(); ++i) {
+            Block blk = getASMBlock(fun.suite.get(i).L);
+            curFunc.addBlock(blk);
+        }
         //blkMap.put(fun.suite.get())
         fun.suite.forEach(blk -> blk.accept(this));
     }
@@ -93,6 +97,7 @@ public class asmBuilder implements IRPass {
     @Override public void visit(IRClass cl) {}
 
     @Override public void visit(block bl) {
+        curBlock = blkMap.get(bl.L);
         bl.stats.forEach(s -> s.accept(this));
     }
 
