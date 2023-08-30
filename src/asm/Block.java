@@ -7,6 +7,7 @@ import java.util.HashMap;
 public class Block {
     public String name;
     static int block_cnt = 0;
+    public boolean istop;
     int id;
     public HashMap<Block, inst> preInst = new HashMap<>();
     public inst head = null, last = null;
@@ -18,6 +19,7 @@ public class Block {
 
     public Block(String name, boolean bo) {
         this.name = name;
+        istop = bo;
     }
 
     public void addInst(inst i) {
@@ -45,14 +47,15 @@ public class Block {
             i.next = j; j.prev = i;
             last = j;
         } else {
-            i.next.prev = j; j.next = i.prev;
+            i.next.prev = j; j.next = i.next;
             i.next = j; j.prev = i;
         }
     }
 
     @Override
     public String toString() {
-        return "." + name + ":";
+        if(istop) return name + ":";
+        else return "." + name + ":";
     }
 
     public void addPreBlock(Block blk, inst j) {

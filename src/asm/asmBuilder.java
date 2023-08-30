@@ -234,7 +234,9 @@ public class asmBuilder implements IRPass {
         }
     }
     @Override public void visit(ret x) {
-        curBlock.addInst(new mvInst(a0, getReg(x.retEntity)));
+        if(x.retEntity != null) {
+            curBlock.addInst(new mvInst(a0, getReg(x.retEntity)));
+        }
         curBlock.addInst(new retInst());
     }
 

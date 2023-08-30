@@ -30,14 +30,14 @@ public class registerAllocation implements asmPass {
         asmReg t = T[(idx++) % 6 + 1];
         virtualReg u = (virtualReg) r;
         int pos = curFun.stackPos(u);
-        imm p = new imm(pos);
+        imm p = new imm(-pos);
         if(!isImm(pos)) {
             asmReg t3 = T[0];
             curBlock.addPrev(s, new liInst(t3, p));
             curBlock.addPrev(s, new binaryInst(t3, t3, s0, binaryInst.binaryType.ADD));
-            curBlock.addPrev(s, new loadInst(4, t, u, imm_zero));
+            curBlock.addPrev(s, new loadInst(4, t, s0, imm_zero));
         } else {
-            curBlock.addPrev(s, new loadInst(4, t, u, p));
+            curBlock.addPrev(s, new loadInst(4, t, s0, p));
         }
         return t;
     }
@@ -47,14 +47,14 @@ public class registerAllocation implements asmPass {
         asmReg t = T[(idx++) % 6 + 1];
         virtualReg u = (virtualReg) r;
         int pos = curFun.stackPos(u);
-        imm p = new imm(pos);
+        imm p = new imm(-pos);
         if(!isImm(pos)) {
             asmReg t3 = T[0];
-            curBlock.addNext(s, new storeInst(4, t, u, imm_zero));
+            curBlock.addNext(s, new storeInst(4, t, s0, imm_zero));
             curBlock.addNext(s, new binaryInst(t3, t3, s0, binaryInst.binaryType.ADD));
             curBlock.addNext(s, new liInst(t3, p));
         } else {
-            curBlock.addNext(s, new storeInst(4, t, u, p));
+            curBlock.addNext(s, new storeInst(4, s0, sp, p));
         }
         return t;
     }
@@ -71,7 +71,7 @@ public class registerAllocation implements asmPass {
 
         int siz = (fun.bytes + fun.maxCall + 15) / 16 * 16;
         Block entry = fun.entry;
-        Block ret = fun.entry;
+        Block ret = fun.st.get(fun.st.size() - 1);
         inst lst = ret.last;
         if(siz < 2048) {
             entry.addTop(new binaryInst(s0, sp, new imm(siz), binaryInst.binaryType.ADD));
