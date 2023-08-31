@@ -9,15 +9,24 @@ public class globalData {
     dataType t;
     String name;
     int int_val;
-    String str_val;
-    boolean is_glo = false, is_str;
+    String str_val, ptr_val;
+    boolean is_glo = false, is_str, is_ptr = false;
 
     public globalData(String id, int val, boolean glo) {
         t = dataType.WORD;
-        name = id;
+        name = "glo_" + id;
         int_val = val;
         is_glo = glo;
         is_str = false;
+    }
+
+    public globalData(String id, String ptr, boolean glo) {
+        t = dataType.WORD;
+        name = "glo_" + id;
+        ptr_val = ptr;
+        is_glo = glo;
+        is_str = false;
+        is_ptr = true;
     }
 
     public globalData(String id, String val) {
@@ -38,8 +47,10 @@ public class globalData {
 
     @Override
     public String toString() {
-        String ret = (is_glo ? "\t.globl" + name : "") + "." + name + "\n";
-        if(!is_str) {
+        String ret = (is_glo ? "\t.globl\t" + name : "") + "\n" + name + ":\n";
+        if(is_ptr) {
+            return ret + "\t." + t.toString().toLowerCase() + "\t" + ptr_val;
+        } else if(!is_str) {
             return ret + "\t." + t.toString().toLowerCase() + "\t" + int_val;
         } else {
             String val = "\t." + t.toString().toLowerCase() + "\t\"" + str_val + "\"\n";

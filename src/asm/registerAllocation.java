@@ -54,7 +54,7 @@ public class registerAllocation implements asmPass {
             curBlock.addNext(s, new binaryInst(t3, t3, s0, binaryInst.binaryType.ADD));
             curBlock.addNext(s, new liInst(t3, p));
         } else {
-            curBlock.addNext(s, new storeInst(4, s0, sp, p));
+            curBlock.addNext(s, new storeInst(4, t, s0, p));
         }
         return t;
     }
@@ -157,7 +157,7 @@ public class registerAllocation implements asmPass {
     }
 
     @Override public void visit(storeInst store) {
-        if(store.isSymbol) {
+        if(!store.isSymbol) {
             if(store.rs1 instanceof virtualReg) store.rs1 = Load((virtualReg) store.rs1, store);
             if(store.rs2 instanceof virtualReg) store.rs2 = Load((virtualReg) store.rs2, store);
         }

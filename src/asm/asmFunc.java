@@ -41,8 +41,8 @@ public class asmFunc {
     }
 
     public void addLocalVar(asmReg rg) {
-        stack.put(rg, bytes);
         bytes += 4;
+        stack.put(rg, bytes);
     }
 
     public void accept(asmPass pass) {

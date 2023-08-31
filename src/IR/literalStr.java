@@ -16,7 +16,7 @@ public class literalStr extends literal {
     }
 
     public String asm_name() {
-        return ".str." + id;
+        return ".L.str." + id;
     }
 
     public String def() {

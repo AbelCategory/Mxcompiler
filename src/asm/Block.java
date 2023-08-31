@@ -58,6 +58,11 @@ public class Block {
         else return "." + name + ":";
     }
 
+    public String getName() {
+        if(istop) return name;
+        else return "." + name;
+    }
+
     public void addPreBlock(Block blk, inst j) {
         preInst.put(blk, j);
     }

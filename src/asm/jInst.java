@@ -8,7 +8,7 @@ public class jInst extends inst {
 
     @Override
     public String toString() {
-        return "\tj\t." + label;
+        return "\tj\t" + label;
     }
 
     @Override
