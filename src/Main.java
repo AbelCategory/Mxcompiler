@@ -95,12 +95,14 @@ public class Main {
 //        compile(new FileInputStream("1.mx"), new PrintStream("1.ll"));
 //        TestIR.testIR();
         dsynb = false;
-        InputStream input = new FileInputStream("1.mx");
-//        InputStream input = System.in;
-        OutputStream IROutput = new PrintStream("1.ll");
-        OutputStream ASMoutput = new PrintStream("1.s");
+//        InputStream input = new FileInputStream("1.mx");
+        InputStream input = System.in;
+//        OutputStream IROutput = new PrintStream("1.ll");
+        OutputStream IROutput = System.out;
+//        OutputStream ASMoutput = new PrintStream("1.s");
+        OutputStream ASMoutput = System.out;
         int n = args.length;
-        onlyLLVM = true;
+        onlyLLVM = false;
         onlyAssembly = true;
         for(int i = 0; i < n; ++i) {
             switch (args[i]) {
