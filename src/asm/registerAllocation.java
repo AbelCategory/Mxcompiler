@@ -35,7 +35,7 @@ public class registerAllocation implements asmPass {
             asmReg t3 = T[0];
             curBlock.addPrev(s, new liInst(t3, p));
             curBlock.addPrev(s, new binaryInst(t3, t3, s0, binaryInst.binaryType.ADD));
-            curBlock.addPrev(s, new loadInst(4, t, s0, imm_zero));
+            curBlock.addPrev(s, new loadInst(4, t, t3, imm_zero));
         } else {
             curBlock.addPrev(s, new loadInst(4, t, s0, p));
         }
@@ -50,7 +50,7 @@ public class registerAllocation implements asmPass {
         imm p = new imm(-pos);
         if(!isImm(pos)) {
             asmReg t3 = T[0];
-            curBlock.addNext(s, new storeInst(4, t, s0, imm_zero));
+            curBlock.addNext(s, new storeInst(4, t, t3, imm_zero));
             curBlock.addNext(s, new binaryInst(t3, t3, s0, binaryInst.binaryType.ADD));
             curBlock.addNext(s, new liInst(t3, p));
         } else {

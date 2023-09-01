@@ -1,7 +1,7 @@
 package IR;
 
 public class br extends statment {
-    private boolean cond;
+    private boolean cond, neq = true;
     public entity condRes, label1, label2;
 
     public br(entity cres, entity l1, entity l2) {
@@ -10,6 +10,17 @@ public class br extends statment {
         condRes = cres;
         label1 = l1;
         label2 = l2;
+    }
+
+    public boolean isNeq() {return neq;}
+
+    public br(entity cres, entity l1, entity l2, boolean eq) {
+        super();
+        cond = true;
+        condRes = cres;
+        label1 = l1;
+        label2 = l2;
+        neq = !eq;
     }
 
     public br(entity l) {

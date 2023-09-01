@@ -23,7 +23,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
 public class Main {
-    private static boolean onlySemantic = false, onlyLLVM = true, onlyAssembly = true;
+    private static boolean onlySemantic = false, onlyLLVM = true, onlyAssembly = true, dsynb = false;
 
     public static boolean checkOk(String name) throws IOException{
         File file = new File(name);
@@ -73,8 +73,10 @@ public class Main {
                     asm.visit(topModule);
                     System.err.println("ASM builder OK");
                     asmModule asmTop = asm.topModule;
-                    new registerAllocation(asmTop).visit(asmTop);
-                    System.err.println("Register allocation OK");
+                    if(!dsynb) {
+                        new registerAllocation(asmTop).visit(asmTop);
+                        System.err.println("Register allocation OK");
+                    }
                     new asmPrinter((PrintStream) output2).visit(asmTop);
                 }
             }
@@ -92,7 +94,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
 //        compile(new FileInputStream("1.mx"), new PrintStream("1.ll"));
 //        TestIR.testIR();
-
+        dsynb = false;
         InputStream input = new FileInputStream("1.mx");
 //        InputStream input = System.in;
         OutputStream IROutput = new PrintStream("1.ll");

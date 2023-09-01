@@ -520,7 +520,7 @@ public class IRBuilder implements ASTVistor {
                     P.addVal(block1.L, cur.rhs.ent);
                     curBlock.addInst(P);
                 } else {
-                    pre.addInst(new br(cur.lhs.ent, block2.L, block1.L));
+                    pre.addInst(new br(cur.lhs.ent, block2.L, block1.L, true));
                     curBlock = block1;
                     cur.rhs.accept(this);
                     curBlock.addInst(new br(block2.L));
@@ -631,10 +631,11 @@ public class IRBuilder implements ASTVistor {
         if(cur.lhs.type.isBool() && !(cur.lhs.isSingle)) {
             res = new reg("frombool", intIR);
             curBlock.addInst(new convert(res, cur.rhs.ent, intIR, boolIR, convert.conv.ZEXT));
+            curBlock.addInst(new store(intIR, res, cur.lhs.ptr));
         } else {
             res = cur.rhs.ent;
+            curBlock.addInst(new store(toIRType(cur.lhs.type), res, cur.lhs.ptr));
         }
-        curBlock.addInst(new store(toIRType(cur.lhs.type), res, cur.lhs.ptr));
         cur.ent = cur.rhs.ent;
     }
 
@@ -716,6 +717,7 @@ public class IRBuilder implements ASTVistor {
         cur.index.accept(this);
         entity arr = cur.array.ent;
         IRType tp =  getArrayIndex((ptrType) arr.type);
+        if(tp instanceof I_Type) tp = intIR;
         reg ptr = new reg("array_idx", arr.type);
         cur.ptr = ptr;
         //curBlock.addInst(new getelementptr(ptr, arr, getArrayIndex(tp), cur.index.ent));
