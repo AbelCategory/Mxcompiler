@@ -598,25 +598,28 @@ public class IRBuilder implements ASTVistor {
             block pre = curBlock;
             block block1 = new block("cond.trueBranch"), block2 = new block("cond.falseBranch");
             block block3 = new block("cond.end");
-            curFunc.addBlock(block1);
-            curFunc.addBlock(block2);
-            curFunc.addBlock(block3);
+
             reg res = new reg("cond", toIRType(cur.type));
             pre.addInst(new br(cur.cond.ent, block1.L, block2.L));
 
+            curFunc.addBlock(block1);
             curBlock = block1;
             cur.exp1.accept(this);
-            block1.addInst(new br(block3.L));
+            curBlock.addInst(new br(block3.L));
+            block ed1 = curBlock;
 
+            curFunc.addBlock(block2);
             curBlock = block2;
             cur.exp2.accept(this);
-            block2.addInst(new br(block3.L));
+            curBlock.addInst(new br(block3.L));
+            block ed2 = curBlock;
 
+            curFunc.addBlock(block3);
             curBlock = block3;
             if(!cur.type.isVoid()) {
                 phi p = new phi(res);
-                p.addVal(block1.L, cur.exp1.ent);
-                p.addVal(block2.L, cur.exp2.ent);
+                p.addVal(ed1.L, cur.exp1.ent);
+                p.addVal(ed2.L, cur.exp2.ent);
                 block3.addInst(p);
                 cur.ent = res;
             }
